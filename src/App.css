@@ -1,0 +1,14 @@
+#root {
+  margin: 0 auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+.text-ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-left: 0.25rem; /* px-1 equivalent */
+  padding-right: 0.25rem; /* px-1 equivalent */
+}
