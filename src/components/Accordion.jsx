@@ -55,9 +55,9 @@ const Accordion = () => {
   return (
     <div className="lg:w-[20%] md:w-[35%] sm:w-[50%] w-[60%] bg-slate-200 h-full fixed top-0 left-0 z-50">
       {/* Logo */}
-      <div className="flex items-center justify-around w-full p-5">
-        <img className="w-5/12" src="/anachak/logo.png" alt="Logo" />
-        <h3 className="text-orange-400 font-bold">Nham Salmon</h3>
+      <div className="w-full p-5">
+        <img className="w-3/12 rounded-full m-auto" src="/anachak/image.png" alt="Logo" />
+        <h2 className="text-orange-400 font-bold text-[16px] text-center p-2"><span className="text-4xl">Anachak</span> <br /> Digital Menu</h2>
       </div>
 
       {/* Menu */}

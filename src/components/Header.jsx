@@ -110,7 +110,7 @@ const Header = ({ toggleSidebar }) => {
       <div className="flex items-center">
         <i
           onClick={toggleSidebar}
-          className="text-orange-400 fas fa-bars text-xl cursor-pointer"
+          className="text-orange-400 fas fa-bars text-[32px] cursor-pointer"
         ></i>
       </div>
       <div className="flex items-center">

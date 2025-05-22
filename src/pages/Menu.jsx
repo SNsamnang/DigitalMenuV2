@@ -156,20 +156,20 @@ const Menu = () => {
             className="p-3 top-0 w-full relative z-10"
             style={{ backgroundColor: shopDetails?.color }}
           >
-            <div className="flex justify-between items-start p-3">
+            <div className="flex justify-between items-start p-2">
               <div className="flex items-center space-x-3">
                 <span
                   onClick={toggleSidebar}
-                  className="w-7 h-7 rounded-full bg-white flex items-center justify-center cursor-pointer"
+                  className="w-10 h-10 rounded-full bg-white flex items-center justify-center cursor-pointer"
                 >
                   <i
-                    className="fas fa-bars text-xl"
+                    className="fas fa-bars text-[30px]"
                     style={{ color: shopDetails?.color }}
                   ></i>
                 </span>
               </div>
               <img
-                className="w-32 rounded-full"
+                className="w-24 lg:w-32 rounded-full object-cover my-5 lg:my-2"
                 src={shopDetails.profile}
                 alt="Logo"
               />
