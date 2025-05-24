@@ -163,7 +163,7 @@ const Menu = () => {
                   className="w-10 h-10 rounded-full bg-white flex items-center justify-center cursor-pointer"
                 >
                   <i
-                    className="fas fa-bars text-[30px]"
+                    className="fas fa-bars text-[26px]"
                     style={{ color: shopDetails?.color }}
                   ></i>
                 </span>

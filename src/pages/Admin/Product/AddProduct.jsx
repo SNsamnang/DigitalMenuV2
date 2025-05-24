@@ -101,14 +101,13 @@ const AddProduct = () => {
       if (!currentUser || !userRole) return;
 
       try {
-        const isSuperAdmin = userRole.role == "super admin";
+        const isSuperAdmin = userRole.role === "super admin";
         const baseQuery = isSuperAdmin ? {} : { userId: currentUser.id };
-        console.log(userRole.role);
         const [productTypesResponse, shopsResponse, saleTypesResponse] =
           await Promise.all([
-            supabase.from("ProductType").select("*").match(baseQuery),
+            supabase.from("ProductType").select("*"),
             supabase.from("Shop").select("*").match(baseQuery),
-            supabase.from("SaleType").select("*").match(baseQuery),
+            supabase.from("SaleType").select("*"), // Show all sale types for all users
           ]);
 
         if (productTypesResponse.error) throw productTypesResponse.error;
@@ -153,13 +152,20 @@ const AddProduct = () => {
   // Update the handleImageUpload function
   const handleImageUpload = (publicUrl) => {
     if (!publicUrl) return;
-    
-    // Just update the form state with the new image URL
     setFormData(prev => ({
       ...prev,
       image: publicUrl
     }));
     setImagePreview(publicUrl);
+  };
+
+  // Filter product types for select
+  const getFilteredProductTypes = () => {
+    if (userRole?.role === "super admin") return productTypes;
+    // Get shop IDs owned by current user
+    const userShopIds = shops.map(shop => shop.id);
+    // Only product types whose shopId is in user's shops
+    return productTypes.filter(pt => userShopIds.includes(pt.shopId));
   };
 
   const validateForm = () => {
@@ -169,7 +175,7 @@ const AddProduct = () => {
     }
 
     if (userRole?.role !== "super admin") {
-      const isValidProductType = productTypes.some(
+      const isValidProductType = getFilteredProductTypes().some(
         (pt) => pt.id == formData.productTypeId
       );
       const isValidShop = shops.some((s) => s.id == formData.shopId);
@@ -207,20 +213,20 @@ const AddProduct = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (!validateForm()) {
       setIsSuccess(false);
       setShowDialog(true);
       return;
     }
-  
+
     if (!formData.image) {
       setDialogMessage("❌ Please upload a product image");
       setIsSuccess(false);
       setShowDialog(true);
       return;
     }
-  
+
     try {
       const productData = formData.id
         ? { ...formData }
@@ -236,18 +242,18 @@ const AddProduct = () => {
             status: formData.status,
             saleTypeId: formData.saleTypeId,
           };
-  
+
       const result = formData.id
         ? await updateProduct(productData)
         : await insertProduct(productData);
-  
+
       if (result.success) {
         setDialogMessage(
           `✅ Product ${formData.id ? "updated" : "added"} successfully!`
         );
         setIsSuccess(true);
         setShowDialog(true);
-  
+
         // Navigate after successful update with a delay
         if (formData.id) {
           setTimeout(() => {
@@ -363,7 +369,7 @@ const AddProduct = () => {
                 required
               >
                 <option value="">Select Product Type</option>
-                {productTypes.map((type) => (
+                {getFilteredProductTypes().map((type) => (
                   <option key={type.id} value={type.id}>
                     {type.product_type}
                   </option>
