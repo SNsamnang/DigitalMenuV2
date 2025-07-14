@@ -22,26 +22,33 @@ const CardMenu = ({ products }) => {
   useEffect(() => {
     const fetchUserRoleAndFilterProducts = async () => {
       try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        const {
+          data: { session },
+          error: sessionError,
+        } = await supabase.auth.getSession();
         if (sessionError || !session) {
           console.error("Error fetching session:", sessionError?.message);
+          setFilteredProducts([]);
           return;
         }
 
         const { data: userData, error: userError } = await supabase
           .from("Users")
-          .select(`
-            id,
-            roleId,
-            Roles:roleId (
-              role
-            )
-          `)
+          .select(
+            `
+          id,
+          roleId,
+          Roles:roleId (
+            role
+          )
+        `
+          )
           .eq("authId", session.user.id)
           .single();
 
-        if (userError) {
-          console.error("Error fetching user data:", userError.message);
+        if (userError || !userData) {
+          console.error("Error fetching user data:", userError?.message);
+          setFilteredProducts([]);
           return;
         }
 
@@ -49,16 +56,29 @@ const CardMenu = ({ products }) => {
         setRole(userRole);
         setUserId(userData.id);
 
-        let visibleProducts;
+        let visibleProducts = [];
+
         if (userRole === "super admin") {
           visibleProducts = products;
         } else {
-          visibleProducts = products.filter(product => 
-            Number(product.userId) === Number(userData.id)
+          // Fetch shops owned by user
+          const { data: shopData, error: shopError } = await supabase
+            .from("Shop")
+            .select("id")
+            .eq("userId", userData.id);
+
+          if (shopError || !shopData) {
+            console.error("Error fetching shop data:", shopError?.message);
+            setFilteredProducts([]);
+            return;
+          }
+
+          const userShopIds = shopData.map((shop) => Number(shop.id));
+          visibleProducts = products.filter((product) =>
+            userShopIds.includes(Number(product.shopId))
           );
         }
         setFilteredProducts(visibleProducts || []);
-
       } catch (err) {
         console.error("Unexpected error:", err);
         setFilteredProducts([]);
@@ -77,24 +97,28 @@ const CardMenu = ({ products }) => {
     const fetchImageUrls = async () => {
       const urls = {};
       const loading = {};
-      
+
       for (const product of filteredProducts) {
         if (product.image) {
           loading[product.id] = true;
-          setLoadingImages(prev => ({ ...prev, [product.id]: true }));
-          
+          setLoadingImages((prev) => ({ ...prev, [product.id]: true }));
+
           try {
-            const { data: { publicUrl } } = supabase.storage
-              .from('anachak')
-              .getPublicUrl(product.image);
-            
+            const {
+              data: { publicUrl },
+            } = supabase.storage.from("anachak").getPublicUrl(product.image);
+
             urls[product.id] = publicUrl;
           } catch (error) {
-            console.error('Error getting image URL for product:', product.id, error);
-            setImageErrors(prev => ({ ...prev, [product.id]: true }));
+            console.error(
+              "Error getting image URL for product:",
+              product.id,
+              error
+            );
+            setImageErrors((prev) => ({ ...prev, [product.id]: true }));
           } finally {
             loading[product.id] = false;
-            setLoadingImages(prev => ({ ...prev, [product.id]: false }));
+            setLoadingImages((prev) => ({ ...prev, [product.id]: false }));
           }
         }
       }
@@ -130,7 +154,9 @@ const CardMenu = ({ products }) => {
       }
     } catch (error) {
       console.error("Error deleting product:", error);
-      setDialogMessage("❌ An unexpected error occurred while deleting the product.");
+      setDialogMessage(
+        "❌ An unexpected error occurred while deleting the product."
+      );
       setDialogType("error");
     } finally {
       setShowDialog(true);
@@ -149,7 +175,7 @@ const CardMenu = ({ products }) => {
       {/* Dialog */}
       {showDialog && (
         <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-5 rounded-lg shadow-lg text-center w-[90%] max-w-lg">
+          <div className="bg-white p-5 rounded-lg shadow-lg text-center">
             <p className="text-gray-800">{dialogMessage}</p>
             <div className="mt-4 flex justify-center gap-4">
               {dialogType === "confirm" ? (
@@ -206,7 +232,12 @@ const CardMenu = ({ products }) => {
                   <img
                     src={product.image}
                     className="h-[80px] w-[80px] lg:h-36 sm:h-32 md:h-32 lg:w-36 sm:w-32 md:w-32 rounded-2xl object-cover"
-                    onError={() => setImageErrors(prev => ({ ...prev, [product.id]: true }))}
+                    onError={() =>
+                      setImageErrors((prev) => ({
+                        ...prev,
+                        [product.id]: true,
+                      }))
+                    }
                     alt={product.name}
                   />
                 )}
@@ -257,7 +288,11 @@ const CardMenu = ({ products }) => {
                         ${product.price}
                       </h3>
                       <h3 className="font-bold text-orange-400 ml-3">
-                        ${(product.price - product.price * (product.discount / 100)).toFixed(2)}
+                        $
+                        {(
+                          product.price -
+                          product.price * (product.discount / 100)
+                        ).toFixed(2)}
                       </h3>
                     </>
                   ) : (
@@ -267,7 +302,8 @@ const CardMenu = ({ products }) => {
                   )}
                 </div>
                 <div className="w-full flex items-center justify-center">
-                  {(role === "super admin" || Number(product.userId) === Number(userId)) && (
+                  {(role === "super admin" ||
+                    Number(product.userId) === Number(userId)) && (
                     <>
                       <button
                         className="rounded-lg w-7 h-7 hover:bg-slate-300"

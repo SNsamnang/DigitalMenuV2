@@ -7,7 +7,7 @@ import ContentTableProduct from "../../../components/ContentTableProduct";
 import Pagination from "../../../components/pagination";
 import CardMenu from "../../../components/CardMenu";
 import { getProducts } from "../../../controller/product/productController";
-import { supabase } from "../../../supabaseClient"; // adjust if needed
+import { supabase } from "../../../supabaseClient";
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -19,6 +19,7 @@ const Products = () => {
   const [loading, setLoading] = useState(true);
   const [role, setRole] = useState("");
   const [userId, setUserId] = useState(null);
+
   useEffect(() => {
     const fetchProducts = async () => {
       const data = await getProducts();
@@ -27,7 +28,6 @@ const Products = () => {
       }
       setLoading(false);
     };
-
     fetchProducts();
   }, []);
 
@@ -113,6 +113,7 @@ const Products = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
+  // Search by product name or owner name
   const searchedProducts = filteredProducts.filter((product) => {
     const productNameMatch =
       product.name?.toLowerCase().includes(searchQuery.toLowerCase()) || false;
