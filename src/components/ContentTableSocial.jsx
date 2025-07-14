@@ -155,7 +155,7 @@ const ContentTableSocial = ({ socialContacts, onUpdate }) => {
       {showDialog && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-5 rounded-lg shadow-lg text-centerl w-[90%] max-w-lg">
-            <p className="text-gray-800">{dialogMessage}</p>
+            <p className="text-gray-800 text-center">{dialogMessage}</p>
             <div className="mt-4 flex justify-center gap-4">
               {dialogType === "confirm" ? (
                 <>

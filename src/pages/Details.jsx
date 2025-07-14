@@ -1,15 +1,58 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { anachakMenus } from "../data/anachak"; // Import anachakMenus
+import { useEffect, useState } from "react";
+import { supabase } from "../supabaseClient";
+
 const Details = () => {
   const navigate = useNavigate();
-  const { id } = useParams(); // Get the ID from the URL
-  const menuItem = anachakMenus.find((menu) => menu.id === parseInt(id));
+  const { id } = useParams();
+  const [menuItem, setMenuItem] = useState(null);
+  const [productType, setProductType] = useState("");
+  const [socialContent, setSocialContent] = useState([]);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      const { data, error } = await supabase
+        .from("Products")
+        .select("*")
+        .eq("id", id)
+        .single();
+      if (!error && data) {
+        setMenuItem(data);
+
+        // Fetch product_type from SaleType table
+        const { data: typeData, error: typeError } = await supabase
+          .from("SaleType")
+          .select("name")
+          .eq("id", data.saleTypeId)
+          .single();
+        if (!typeError && typeData) {
+          setProductType(typeData.name);
+        }
+
+        // Fetch socialContent for this shop
+        const { data: socialData, error: socialError } = await supabase
+          .from("SocialContact")
+          .select("*")
+          .eq("shopId", data.shopId);
+        if (!socialError && socialData) {
+          setSocialContent(socialData);
+        }
+      }
+    };
+    fetchProduct();
+  }, [id]);
 
   if (!menuItem) return <div>Menu item not found</div>;
+
   const handleBackClick = () => {
-    navigate("/menu"); // Navigate back to the menu page
+    if (menuItem?.shopId) {
+      navigate(`/menu/${menuItem.shopId}`);
+    } else {
+      navigate("/menu");
+    }
   };
   const newPrice = menuItem.price - menuItem.price * (menuItem.discount / 100);
+
   return (
     <div className="w-full pb-20 m-auto pt-1">
       <div className="relative w-11/12 lg:w-5/12 md:w-7/12 sm:w-7/12 m-auto bg-white rounded-2xl flex items-center justify-center p-2">
@@ -17,24 +60,24 @@ const Details = () => {
           <img
             className="w-full rounded-2xl"
             src={menuItem.image}
-            alt={menuItem.image}
+            alt={menuItem.name}
           />
           <div className="w-full flex justify-between h-5 absolute top-0 left-0 z-10 px-3 mt-3">
             <span
               onClick={handleBackClick}
-              className=" cursor-pointer w-9 h-9 flex items-center justify-center uppercase font-bold text-[8px] bg-white text-orange-400 rounded-full border-[1px] border-orange-400"
+              className="cursor-pointer w-9 h-9 flex items-center justify-center uppercase font-bold text-[8px] bg-white text-orange-400 rounded-full border-[1px] border-orange-400"
             >
               <i className="fas fa-chevron-left text-xl"></i>
             </span>
             <span className="ml-2 px-4 py-3 flex items-center uppercase font-bold text-[10px] bg-orange-400 text-white rounded-2xl border-[1px] border-white">
-              {menuItem.productType}
+              {productType}
             </span>
           </div>
         </div>
       </div>
       <div
         id="Desc"
-        className="w-10/12 m-auto  lg:w-4/12 md:w-6/12 sm:w-6/12 bg-white rounded-[6px] shadow-lg p-4 -mt-12 z-50 relative"
+        className="w-10/12 m-auto lg:w-4/12 md:w-6/12 sm:w-6/12 bg-white rounded-[6px] shadow-lg p-4 -mt-12 z-50 relative"
       >
         <p className="text-orange-400 text-sm font-semibold">
           ID: 00{menuItem.id}
@@ -42,9 +85,7 @@ const Details = () => {
         <h2 className="text-green-700 text-2xl font-bold py-3 font-khmer">
           {menuItem.name}
         </h2>
-        <p className="text-gray-600">{menuItem.Description}</p>
-
-        {/* Price Display */}
+        <p className="text-gray-600">{menuItem.description}</p>
         <div className="mt-2 flex items-center">
           {menuItem.discount > 0 ? (
             <>
@@ -52,7 +93,7 @@ const Details = () => {
                 ${menuItem.price}
               </p>
               <p className="text-orange-400 text-lg font-bold ml-3">
-                ${newPrice}
+                ${newPrice.toFixed(2)}
               </p>
             </>
           ) : (
@@ -60,6 +101,31 @@ const Details = () => {
               ${menuItem.price}
             </p>
           )}
+        </div>
+        <div className="mt-4 flex flex-wrap gap-4 justify-center">
+          {socialContent.map((icon, idx) => (
+            <a
+              key={idx}
+              href={icon.link_contact}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2"
+            >
+              <span className="w-10 h-10 rounded-full border-2 bg-white flex items-center justify-center cursor-pointer">
+                <i
+                  className={`${icon.name === "phone" ? "fas" : "fab"} fa-${
+                    icon.name
+                  } text-2xl`}
+                  style={{ color: "#16a34a" }}
+                ></i>
+              </span>
+              {icon.name === "phone" && (
+                <span className="text-2xl font-bold text-green-600">
+                  {icon.link_contact}
+                </span>
+              )}
+            </a>
+          ))}
         </div>
       </div>
     </div>

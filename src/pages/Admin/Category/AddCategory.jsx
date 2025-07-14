@@ -5,8 +5,8 @@ import Accordion from "../../../components/Accordion";
 import {
   insertProductType,
   updateProductType,
-} from "../../../controller/productType/productTypeController"; // Adjust the import path as necessary
-import { supabase } from "../../../supabaseClient"; // Import Supabase client
+} from "../../../controller/productType/productTypeController";
+import { supabase } from "../../../supabaseClient";
 
 const AddCategory = () => {
   const location = useLocation();
@@ -18,13 +18,13 @@ const AddCategory = () => {
     product_type: "",
     description: "",
     status: false,
-    userId: null, // Add userId to formData
+    userId: null,
     shopId: "",
   });
 
-  const [userData, setUserData] = useState(null); // State to store user data
-  const [shops, setShops] = useState([]); // State to store all shops
-  const [filteredShops, setFilteredShops] = useState([]); // State to store filtered shops
+  const [userData, setUserData] = useState(null);
+  const [shops, setShops] = useState([]);
+  const [filteredShops, setFilteredShops] = useState([]);
   const [showDialog, setShowDialog] = useState(false);
   const [dialogMessage, setDialogMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
@@ -76,6 +76,12 @@ const AddCategory = () => {
 
         setUserData(user);
 
+        // Always set userId in formData to current user's id
+        setFormData((prev) => ({
+          ...prev,
+          userId: user.id,
+        }));
+
         // Fetch all shops
         const { data: allShops, error: shopError } = await supabase
           .from("Shop")
@@ -90,9 +96,8 @@ const AddCategory = () => {
 
         // Filter shops based on user role
         if (user.Roles.role === "super admin") {
-          setFilteredShops(allShops); // Show all shops for super admin
+          setFilteredShops(allShops);
         } else {
-          // Show only shops the user can control
           const userShops = allShops.filter(
             (shop) => shop.userId === user.id
           );
@@ -126,10 +131,10 @@ const AddCategory = () => {
       if (formData.id) {
         // Update existing category
         console.log("Updating category with formData:", formData);
-        result = await updateProductType(formData.id, formData); // Pass the ID and updated data
+        result = await updateProductType(formData.id, formData);
       } else {
         // Insert new category
-        const { id, ...newCategoryData } = formData; // Exclude `id` for new entries
+        const { id, ...newCategoryData } = formData;
         console.log("Inserting new category with formData:", newCategoryData);
         result = await insertProductType(newCategoryData);
       }
@@ -149,7 +154,7 @@ const AddCategory = () => {
             product_type: "",
             description: "",
             status: false,
-            userId: formData.userId, // Retain the userId
+            userId: formData.userId,
             shopId: "",
           });
         }
@@ -178,7 +183,7 @@ const AddCategory = () => {
     setIsSuccess(false);
 
     if (isSuccess) {
-      navigate("/admin/category"); // Redirect to the category list if the operation was successful
+      navigate("/admin/category");
     }
   };
 

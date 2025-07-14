@@ -141,6 +141,11 @@ const ContentTableCategory = ({ categories, onCategoryCountChange }) => {
         setFilteredCategories((prev) =>
           prev.filter((cat) => cat.id !== categoryToDelete)
         );
+
+        // Refresh the page after a short delay to show the success message
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
       } else {
         setDialogMessage(`❌ Failed to delete the category: ${result.message}`);
         setDialogType("error");

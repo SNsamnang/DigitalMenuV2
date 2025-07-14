@@ -4,7 +4,7 @@ import SideBar from "../components/SideBar";
 import { Link, useParams } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 
-const Menu = () => {
+const MenuGrid = () => {
   const { i18n } = useTranslation();
   const [searchTerm, setSearchTerm] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -69,11 +69,23 @@ const Menu = () => {
   }, [shopId]);
 
   useEffect(() => {
-    const filtered = products.filter((product) =>
-      product.name.toLowerCase().includes(searchTerm)
+    const filtered = products.filter(
+      (product) =>
+        product.name.toLowerCase().includes(searchTerm) &&
+        (selectedCategory === null ||
+          product.productTypeId === selectedCategory)
     );
     setFilteredProducts(filtered);
-  }, [searchTerm, products]);
+  }, [searchTerm, products, selectedCategory]);
+
+  // Only show categories that have at least one matching product
+  const visibleCategories = categories.filter(
+    (category) =>
+      filteredProducts.filter(
+        (product) =>
+          product.productTypeId === category.id && product.status == 1
+      ).length > 0
+  );
 
   const toggleLanguage = () => {
     const newLang = i18n.language === "en" ? "km" : "en";
@@ -131,19 +143,9 @@ const Menu = () => {
     );
   }
 
-  // Only show categories that have at least one matching product
-  const visibleCategories = categories.filter(
-    (category) =>
-      filteredProducts.filter(
-        (product) =>
-          product.productTypeId === category.id && product.status == 1
-      ).length > 0
-  );
-
   return (
     <div className="flex justify-center items-start">
       <div id="top" className="w-full bg-white font-khmer">
-        {/* Sidebar Component */}
         <SideBar
           isOpen={isSidebarOpen}
           toggleSidebar={toggleSidebar}
@@ -151,15 +153,11 @@ const Menu = () => {
           className="z-50"
           shopId={shopId}
         />
-        {/* Navbar */}
-        <div className="fixed top-0 w-full bg-white z-10">
+
+        <div className="fixed top-0 w-full bg-white z-20">
           <nav
-            className="p-3 top-0 h-44 w-full relative z-10"
-            style={{
-              background: shopDetails?.banner
-                ? `url(${shopDetails.banner}) center/cover`
-                : shopDetails?.color,
-            }}
+            className="p-3 top-0 w-full relative"
+            style={{ backgroundColor: shopDetails?.color }}
           >
             <div className="flex justify-between items-start p-2">
               <div className="flex items-center space-x-3">
@@ -173,7 +171,11 @@ const Menu = () => {
                   ></i>
                 </span>
               </div>
-
+              <img
+                className="w-24 lg:w-32 rounded-full object-cover my-5 lg:my-2"
+                src={shopDetails.profile}
+                alt="Logo"
+              />
               <button onClick={toggleLanguage}>
                 {i18n.language === "en" ? (
                   <img
@@ -190,8 +192,6 @@ const Menu = () => {
                 )}
               </button>
             </div>
-
-            {/* Search Input Positioned at Bottom-Center */}
             <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 w-10/12 sm:w-8/12 md:w-7/12 lg:w-6/12">
               <span
                 className="absolute left-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
@@ -213,10 +213,9 @@ const Menu = () => {
             </div>
           </nav>
 
-          {/* Menu Category Navigation */}
           <div
             id="menu"
-            className="m-auto lg:w-10/12 sm:w-11/12 md:w-11/12 flex w-full space-x-3 overflow-x-auto whitespace-nowrap py-3 pl-3 pr-3 scrollbar-hide mt-5 z-10"
+            className="m-auto lg:w-10/12 sm:w-11/12 md:w-11/12 flex w-full space-x-3 overflow-x-auto whitespace-nowrap py-3 pl-3 pr-3 scrollbar-hide mt-5 z-20"
           >
             <button
               className="font-bold bg-slate-200 lg:text-[18px] text-[14px] rounded-3xl h-10 px-7 py-1 flex justify-center items-center"
@@ -253,7 +252,7 @@ const Menu = () => {
             ))}
           </div>
         </div>
-        {/* Menu Items */}
+
         <div className="m-auto lg:w-10/12 sm:w-11/12 md:w-11/12 mt-64">
           <div className="banner w-full px-3 pt-3">
             <img
@@ -267,9 +266,9 @@ const Menu = () => {
               <div
                 key={category.id}
                 ref={(el) => (categoryRefs.current[i] = el)}
-                className="w-full scroll-mt-64"
+                className="w-full scroll-mt-64 relative z-0"
               >
-                <div className="flex items-center justify-start bg-white mb-[2px] py-3">
+                <div className="flex items-center justify-start bg-white mb-[2px] py-3 z-10 sticky top-[64px]">
                   <h2
                     className="mx-3 lg:text-2xl text-xl font-bold"
                     style={{ color: shopDetails?.color }}
@@ -277,85 +276,81 @@ const Menu = () => {
                     {category.product_type}
                   </h2>
                 </div>
-                {/* Card Menu */}
-                {filteredProducts
-                  .filter(
-                    (product) =>
-                      product.productTypeId === category.id &&
-                      product.status == 1
-                  )
-                  .map((product, j) => (
-                    <Link
-                      to={`/details/${product.id}`}
-                      key={j}
-                      className="w-full"
-                    >
-                      <div className="w-full h-28 lg:h-44 sm:h-40 md:h-40 bg-white mt-[2px] grid grid-cols-4 gap-2 px-4">
-                        <div className="col-span-1 py-4 relative">
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-5 px-2 py-4">
+                  {filteredProducts
+                    .filter(
+                      (product) =>
+                        product.productTypeId === category.id &&
+                        product.status == 1
+                    )
+                    .map((product, j) => (
+                      <Link to={``} key={j} className="w-full">
+                        <div className="bg-white rounded-xl shadow hover:shadow-lg transition-all relative flex flex-col h-full">
                           {product.discount > 0 && (
                             <span
-                              className="flex items-center justify-center w-9 h-9 rounded-full text-white text-[12px] absolute top-2 left-[-8px]"
-                              style={{ backgroundColor: shopDetails?.color }}
+                              className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded z-0"
+                              style={{
+                                backgroundColor: shopDetails?.color,
+                              }}
                             >
-                              {product.discount}%
+                              -{product.discount}%
                             </span>
                           )}
+                          <span className="absolute top-3 right-3 z-0">
+                            <i className="far fa-heart text-gray-400 hover:text-red-500 text-lg cursor-pointer"></i>
+                          </span>
                           <img
                             src={product.image}
-                            alt={product.image}
-                            className="h-20 w-24 lg:h-36 sm:h-32 md:h-32 lg:w-36 sm:w-32 md:w-32 rounded-xl object-cover"
+                            alt={product.name}
+                            className="w-full h-48 object-cover rounded-t-xl"
                           />
-                        </div>
-                        <div className="col-span-2 py-3 px-3">
-                          <div className="flex items-center">
-                            <p
-                              className="text-[12px] lg:text-[15px] sm:text-[14px] md:text-[14px] float-left"
-                              style={{ color: shopDetails?.color }}
-                            >
+                          <div className="p-4 flex flex-col flex-1">
+                            <p className="text-gray-500 text-xs mb-1">
                               ID:00{product.id}
                             </p>
-                          </div>
-                          <p className="text-[14px] lg:text-[17px] sm:text-[16px] md:text-[16px] font-bold text-green-600">
-                            {product.name}
-                          </p>
-                          <p className="text-[10px] lg:text-[13px] sm:text-[12px] md:text-[12px]">
-                            {product.description}
-                          </p>
-                        </div>
-                        <div className="col-span-1 flex items-start justify-center py-5">
-                          {product.discount > 0 ? (
-                            <>
-                              <h3 className="font-normal text-xs lg:text-xl line-through text-gray-600">
-                                ${product.price}
-                              </h3>
-                              <h3
-                                className="font-bold ml-3 text-xs lg:text-xl pr-2"
-                                style={{ color: shopDetails?.color }}
-                              >
-                                $
-                                {(
-                                  product.price -
-                                  product.price * (product.discount / 100)
-                                ).toFixed(2)}
-                              </h3>
-                            </>
-                          ) : (
-                            <h3
-                              className="font-bold"
-                              style={{ color: shopDetails?.color }}
-                            >
-                              ${product.price}
+                            <h3 className="font-bold text-base mb-2 text-gray-900 truncate">
+                              {product.name}
                             </h3>
-                          )}
+                            <p className="text-gray-500 text-xs mb-2 truncate">
+                              {product.description}
+                            </p>
+                            <div className="mt-auto flex items-center space-x-2">
+                              {product.discount > 0 ? (
+                                <>
+                                  <span className="line-through text-gray-400 text-sm">
+                                    ${product.price}
+                                  </span>
+                                  <span
+                                    className="font-bold text-green-600 text-base"
+                                    style={{ color: shopDetails?.color }}
+                                  >
+                                    $
+                                    {(
+                                      product.price -
+                                      product.price * (product.discount / 100)
+                                    ).toFixed(2)}
+                                  </span>
+                                </>
+                              ) : (
+                                <span
+                                  className="font-bold text-base"
+                                  style={{ color: shopDetails?.color }}
+                                >
+                                  ${product.price}
+                                </span>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </Link>
-                  ))}
+                      </Link>
+                    ))}
+                </div>
               </div>
             ))}
           </main>
         </div>
-        {/* Scroll to Top Button */}
+
         <div className="w-full h-36 flex items-center justify-center px-4">
           <span
             onClick={ScrollTop}
@@ -368,7 +363,6 @@ const Menu = () => {
             <i className="fa-solid fa-chevron-up text-2xl"></i>
           </span>
         </div>
-        {/* Create by Anachark */}
         <div className="w-full bg-white p-3 text-center">
           <div className="text-xl text-gray-400 font-bold">
             Created by{" "}
@@ -396,4 +390,4 @@ const Menu = () => {
   );
 };
 
-export default Menu;
+export default MenuGrid;

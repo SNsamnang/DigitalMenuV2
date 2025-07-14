@@ -18,6 +18,8 @@ import "./App.css";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RoleProtectedRoute from "./components/RoleProtectedRoute";
 import AddSocial from "./pages/Admin/SocialMedia/AddSocialMedia";
+import MenuGrid from "./pages/MenuGrid";
+import MenuList from "./pages/MenuList";
 
 function App() {
   return (
@@ -25,6 +27,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/menu/:shopId" element={<Menu />} />
+        <Route path="/menu-grid/:shopId" element={<MenuGrid />} />
+        <Route path="/menu-list/:shopId" element={<MenuList />} />
         <Route path="/details/:id" element={<Details />} />
         <Route
           path="/admin/*"
