@@ -47,11 +47,11 @@ const UpdatePassword = () => {
             className="w-full px-3 py-2 border rounded mb-4"
             placeholder="Enter new password"
           /><br />
-          {success && <p className="text-green-500 text-sm mb-4">{success}</p>}
+          {success && <p className="text-orange-400 text-sm mb-4">{success}</p>}
           {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+            className="w-full bg-orange-400 text-white py-2 rounded hover:bg-orange-500"
           >
             Update Password
           </button>

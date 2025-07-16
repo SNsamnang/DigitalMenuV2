@@ -37,13 +37,19 @@ const ResetPassword = () => {
             placeholder="Enter your email"
           />
           <br />
-          {message && <p className="text-green-500 text-sm mb-4">{message}</p>}
+          {message && <p className="text-orange-400 text-sm mb-4">{message}</p>}
           {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+            className="w-full bg-orange-400 text-white py-2 rounded hover:bg-orange-500"
           >
             Send Reset Link
+          </button><br />
+          <button
+            className="w-full bg-orange-400 text-white py-2 rounded hover:bg-orange-500 mt-4"
+            onClick={() => window.location.href = "/"}
+          >
+            Login
           </button>
         </form>
       </div>

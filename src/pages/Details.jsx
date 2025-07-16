@@ -103,60 +103,113 @@ const Details = () => {
       </div>
       <div
         id="Desc"
-        className="w-10/12 m-auto lg:w-4/12 md:w-6/12 sm:w-6/12 bg-white rounded-[30px] shadow-lg p-4 -mt-8 z-50 relative "
+        className="w-10/12 m-auto lg:w-[39%] md:w-6/12 sm:w-6/12 bg-white rounded-[30px] shadow-lg p-4 -mt-8 z-50 relative"
         style={{ borderColor: shopColor }}
       >
-        <p className=" text-sm font-semibold" style={{ color: shopColor }}>
+        <p className="text-sm font-semibold" style={{ color: shopColor }}>
           ID: 00{menuItem.id}
         </p>
-        <h2 className="text-green-700 text-2xl font-bold py-3 font-khmer">
-          {menuItem.name}
-        </h2>
-        <p className="text-gray-600">{menuItem.description}</p>
-        <div className="mt-2 flex items-center">
-          {menuItem.discount > 0 ? (
-            <>
-              <p className="text-gray-600 line-through text-sm">
+        <div className="flex justify-between items-center flex-wrap">
+          <h2 className="text-green-700 text-2xl font-bold py-3 font-khmer">
+            {menuItem.name}
+          </h2>
+          <div className="mb-2 flex items-center">
+            {menuItem.discount > 0 ? (
+              <>
+                <p className="text-gray-600 line-through text-2xl">
+                  ${menuItem.price}
+                </p>
+                <p
+                  className="text-2xl font-bold ml-3"
+                  style={{ color: shopColor }}
+                >
+                  ${newPrice.toFixed(2)}
+                </p>
+              </>
+            ) : (
+              <p className="text-2xl font-bold" style={{ color: shopColor }}>
                 ${menuItem.price}
               </p>
-              <p
-                className=" text-lg font-bold ml-3"
-                style={{ color: shopColor }}
-              >
-                ${newPrice.toFixed(2)}
-              </p>
-            </>
-          ) : (
-            <p className=" text-lg font-bold" style={{ color: shopColor }}>
-              ${menuItem.price}
-            </p>
-          )}
-        </div>
-      </div>
-      <div className="mt-4 flex flex-wrap gap-4 justify-center">
-        {socialContent.map((icon, idx) => (
-          <a
-            key={idx}
-            href={icon.link_contact}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2"
-          >
-            <span className="w-10 h-10 rounded-full border-2 bg-white flex items-center justify-center cursor-pointer">
-              <i
-                className={`${icon.name === "phone" ? "fas" : "fab"} fa-${
-                  icon.name
-                } text-2xl`}
-                style={{ color: "#16a34a" }}
-              ></i>
-            </span>
-            {icon.name === "phone" && (
-              <span className="text-2xl font-bold text-green-600">
-                {icon.link_contact}
-              </span>
             )}
-          </a>
-        ))}
+          </div>
+        </div>
+        <p className="text-gray-600 font-khmer">{menuItem.description}</p>
+        <div className="mt-4 flex w-full items-center justify-between gap-4">
+          {/* Phone at the start */}
+          <div className="flex items-center gap-4">
+            {socialContent
+              .filter((icon) => icon.name === "phone")
+              .map((icon, idx) => (
+                <a
+                  key={`phone-${idx}`}
+                  href={`tel:${icon.link_contact}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2"
+                >
+                  <span className="w-10 h-10 rounded-full border-2 bg-white flex items-center justify-center cursor-pointer">
+                    <i
+                      className="fas fa-phone text-2xl h-8 justify-center items-center flex"
+                      style={{ color: shopColor }}
+                    ></i>
+                  </span>
+                  <span
+                    className="text-2xl font-bold h-8 items-center justify-center hidden sm:flex"
+                    style={{ color: shopColor }}
+                  >
+                    {icon.link_contact}
+                  </span>
+                </a>
+              ))}
+          </div>
+          {/* Other icons at the end */}
+          <div className="flex items-center gap-4">
+            {socialContent
+              .filter((icon) => icon.name !== "phone")
+              .map((icon, idx) => {
+                if (icon.name === "telegram") {
+                  const message = encodeURIComponent(
+                    `Check out this product:\n${menuItem.name}\n${menuItem.description}\n${menuItem.image}`
+                  );
+                  const telegramUrl = icon.link_contact.startsWith("@")
+                    ? `${icon.link_contact.replace("@", "")}?text=${message}`
+                    : `${icon.link_contact}?text=${message}`;
+                  return (
+                    <a
+                      key={`telegram-${idx}`}
+                      href={telegramUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2"
+                    >
+                      <span className="w-10 h-10 rounded-full border-2 bg-white flex items-center justify-center cursor-pointer">
+                        <i
+                          className="fab fa-telegram text-2xl"
+                          style={{ color: shopColor }}
+                        ></i>
+                      </span>
+                    </a>
+                  );
+                }
+                return (
+                  <a
+                    key={idx}
+                    href={icon.link_contact}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2"
+                  >
+                    <span className="w-10 h-10 rounded-full border-2 bg-white flex items-center justify-center cursor-pointer">
+                      <i
+                        className={`fab fa-${icon.name} text-2xl`}
+                        style={{ color: shopColor }}
+                      ></i>
+                    </span>
+                  </a>
+                );
+              })}
+          </div>
+        </div>
       </div>
     </div>
   );

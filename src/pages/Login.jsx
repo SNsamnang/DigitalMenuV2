@@ -101,14 +101,14 @@ const Login = () => {
           )}
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition duration-200"
+            className="w-full bg-orange-400 text-white py-2 rounded hover:bg-orange-500 transition duration-200"
           >
             Login
           </button>
           <br />
           <div className="w-full flex items-end justify-end mt-4">
             <a
-              className="underline text-green-400"
+              className="underline text-orange-400"
               href=""
               onClick={() => navigate("/reset-password")}
             >

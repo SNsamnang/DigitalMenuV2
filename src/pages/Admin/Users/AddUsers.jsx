@@ -18,7 +18,6 @@ const AddUser = () => {
     username: "",
     email: "",
     phone: "",
-    password: "",
     roleId: "",
     status: false,
     profile: "",
@@ -28,7 +27,7 @@ const AddUser = () => {
   const [dialogMessage, setDialogMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
-  const [imagePreview, setImagePreview] = useState(""); // Added for image preview
+  const [imagePreview, setImagePreview] = useState(""); // For image preview
 
   useEffect(() => {
     // Fetch roles for the dropdown
@@ -54,7 +53,6 @@ const AddUser = () => {
         username: user.username || "",
         email: user.email || "",
         phone: user.phone || "",
-        password: "",
         roleId: user.roleId || "",
         status: user.status === 1,
         profile: user.profile || "",
@@ -81,11 +79,7 @@ const AddUser = () => {
 
       if (formData.id) {
         // Update user logic
-        const updatedData = { ...formData };
-        if (!updatedData.password) {
-          delete updatedData.password;
-        }
-        result = await updateUser(formData.id, updatedData);
+        result = await updateUser(formData.id, formData);
       } else {
         // Check if the email already exists in the Users table
         const { data: existingUser, error: fetchError } = await supabase
@@ -112,8 +106,9 @@ const AddUser = () => {
           return;
         }
 
-        // Sign up user with Supabase authentication
-        const { email, password } = formData;
+        // Sign up user with Supabase authentication, set default password "123456"
+        const { email } = formData;
+        const password = "123456";
 
         const { data, error } = await supabase.auth.signUp({
           email,
@@ -211,22 +206,7 @@ const AddUser = () => {
                     required
                   />
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleInputChange}
-                    placeholder="Enter password"
-                    className="w-full h-8 pl-2 pr-2 py-1 border rounded-lg ring-1 outline-none ring-orange-400 focus:ring-1 focus:ring-orange-400"
-                    required
-                  />
-                </div>
-
+                {/* REMOVE PASSWORD INPUT */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Role
