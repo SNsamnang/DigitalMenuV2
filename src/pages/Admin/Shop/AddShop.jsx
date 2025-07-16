@@ -30,6 +30,7 @@ const AddShop = () => {
     address: "",
     profile: "",
     banner: "",
+    cover: "", // <-- Add cover field
     userId: "",
     industryId: "",
     link_location: "",
@@ -125,6 +126,7 @@ const AddShop = () => {
             address: shop.address || "",
             profile: shop.profile || "",
             banner: shop.banner || "",
+            cover: shop.cover || "", // <-- Add cover
             userId: shop.userId || "",
             industryId: shop.industryId || "",
             link_location: shop.link_location || "",
@@ -201,6 +203,7 @@ const AddShop = () => {
         address: formData.address.trim(),
         profile: formData.profile || null,
         banner: formData.banner || null,
+        cover: formData.cover || null, // <-- Add cover
         userId: formData.userId,
         industryId: formData.industryId,
         link_location: formData.link_location?.trim() || null,
@@ -236,6 +239,7 @@ const AddShop = () => {
           address: "",
           profile: "",
           banner: "",
+          cover: "", // <-- Reset cover
           userId: "",
           industryId: "",
           link_location: "",
@@ -324,34 +328,6 @@ const AddShop = () => {
               />
             </div>
 
-            {/* Profile Image */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Profile Image
-              </label>
-              <ImageUploader
-                onImageUpload={(url) => handleImageUpload(url, "profile")}
-                initialImage={formData.profile}
-                folderPath="shop-images/profile"
-                imageType="profile"
-                key={`profile-${formData.id || "new"}`}
-              />
-            </div>
-
-            {/* Banner Image */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Banner Image
-              </label>
-              <ImageUploader
-                onImageUpload={(url) => handleImageUpload(url, "banner")}
-                initialImage={formData.banner}
-                folderPath="shop-images/banner"
-                imageType="banner"
-                key={`banner-${formData.id || "new"}`}
-              />
-            </div>
-
             {/* User Selection */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -417,9 +393,50 @@ const AddShop = () => {
               <input
                 type="color"
                 name="color"
-                value={formData.color || "#ffffff"} // Show the existing color if editing, otherwise default to white
+                value={formData.color || "#ffffff"}
                 onChange={handleInputChange}
                 className="w-full h-8 pl-2 pr-2 py-1 border rounded-lg ring-1 outline-none"
+              />
+            </div>
+            {/* Profile Image */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Profile Image
+              </label>
+              <ImageUploader
+                onImageUpload={(url) => handleImageUpload(url, "profile")}
+                initialImage={formData.profile}
+                folderPath="shop-images/profile"
+                imageType="profile"
+                key={`profile-${formData.id || "new"}`}
+              />
+            </div>
+
+            {/* Banner Image */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Banner Image
+              </label>
+              <ImageUploader
+                onImageUpload={(url) => handleImageUpload(url, "banner")}
+                initialImage={formData.banner}
+                folderPath="shop-images/banner"
+                imageType="banner"
+                key={`banner-${formData.id || "new"}`}
+              />
+            </div>
+
+            {/* Cover Image */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Cover Image
+              </label>
+              <ImageUploader
+                onImageUpload={(url) => handleImageUpload(url, "cover")}
+                initialImage={formData.cover}
+                folderPath="shop-images/cover"
+                imageType="cover"
+                key={`cover-${formData.id || "new"}`}
               />
             </div>
 

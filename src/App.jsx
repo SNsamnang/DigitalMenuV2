@@ -19,16 +19,20 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import RoleProtectedRoute from "./components/RoleProtectedRoute";
 import AddSocial from "./pages/Admin/SocialMedia/AddSocialMedia";
 import MenuGrid from "./pages/MenuGrid";
-import MenuList from "./pages/MenuList";
+// import MenuList from "./pages/MenuList";
+import UpdatePassword from "./pages/UpdatePassword";
+import ResetPassword from "./pages/ResetPassword";
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route path="/update-password" element={<UpdatePassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/menu/:shopId" element={<Menu />} />
         <Route path="/menu-grid/:shopId" element={<MenuGrid />} />
-        <Route path="/menu-list/:shopId" element={<MenuList />} />
+        {/* <Route path="/menu-list/:shopId" element={<MenuList />} /> */}
         <Route path="/details/:id" element={<Details />} />
         <Route
           path="/admin/*"

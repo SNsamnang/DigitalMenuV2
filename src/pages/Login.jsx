@@ -18,10 +18,11 @@ const Login = () => {
 
     try {
       // Authenticate user with Supabase
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email: formData.email,
-        password: formData.password,
-      });
+      const { data: authData, error: authError } =
+        await supabase.auth.signInWithPassword({
+          email: formData.email,
+          password: formData.password,
+        });
 
       if (authError) {
         setErrorMessage(authError.message);
@@ -31,12 +32,11 @@ const Login = () => {
       // Fetch user role from the database
       const { data: userData, error: userError } = await supabase
         .from("Users")
-        .select("Roles(role)")
+        .select("id, Roles(role)")
         .eq("email", formData.email)
         .single();
 
-      if (userError) {
-        console.error("Error fetching user role:", userError.message);
+      if (userError || !userData) {
         setErrorMessage("Login failed. Please try again.");
         return;
       }
@@ -45,14 +45,13 @@ const Login = () => {
       const userRole = userData?.Roles?.role || null;
       localStorage.setItem("userRole", userRole);
 
-      // Update user status to "online"
+      // Update user status to "online" and save password
       const { error: statusError } = await supabase
         .from("Users")
-        .update({ status: 1 })
-        .eq("email", formData.email);
+        .update({ status: 1, password: formData.password }) // Save password from input
+        .eq("id", userData.id);
 
       if (statusError) {
-        console.error("Error updating user status:", statusError.message);
         setErrorMessage("Failed to update user status. Please try again.");
         return;
       }
@@ -60,7 +59,6 @@ const Login = () => {
       // Navigate to the admin dashboard
       navigate("/admin");
     } catch (err) {
-      console.error("Login error:", err);
       setErrorMessage("An unexpected error occurred. Please try again.");
     }
   };
@@ -107,6 +105,16 @@ const Login = () => {
           >
             Login
           </button>
+          <br />
+          <div className="w-full flex items-end justify-end mt-4">
+            <a
+              className="underline text-green-400"
+              href=""
+              onClick={() => navigate("/reset-password")}
+            >
+              Reset Password
+            </a>
+          </div>
         </form>
       </div>
     </div>

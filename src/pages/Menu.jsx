@@ -154,12 +154,18 @@ const Menu = () => {
         {/* Navbar */}
         <div className="fixed top-0 w-full bg-white z-10">
           <nav
-            className="p-3 top-0 h-44 w-full relative z-10"
-            style={{
-              background: shopDetails?.banner
-                ? `url(${shopDetails.banner}) center/cover`
-                : shopDetails?.color,
-            }}
+            className="p-3 top-0 h-44 w-full relative z-10 items-center"
+            style={
+              window.innerWidth < 1024
+                ? {
+                    background: shopDetails?.cover
+                      ? `url(${shopDetails.cover}) center/cover`
+                      : shopDetails?.color,
+                  }
+                : {
+                    background: shopDetails?.color,
+                  }
+            }
           >
             <div className="flex justify-between items-start p-2">
               <div className="flex items-center space-x-3">
@@ -173,8 +179,12 @@ const Menu = () => {
                   ></i>
                 </span>
               </div>
-
-              <button onClick={toggleLanguage}>
+              <img
+                src={shopDetails?.profile}
+                alt=""
+                className="h-32 w-32 rounded-full object-cover border-[1px] hidden lg:block"
+              />
+              <button onClick={toggleLanguage} className="hidden lg:block">
                 {i18n.language === "en" ? (
                   <img
                     src="/anachak/engflag.png"
@@ -255,9 +265,10 @@ const Menu = () => {
         </div>
         {/* Menu Items */}
         <div className="m-auto lg:w-10/12 sm:w-11/12 md:w-11/12 mt-64">
-          <div className="banner w-full px-3 pt-3">
+          <div className="banner w-full px-3 pt-3 ">
             <img
-              className="w-full rounded-2xl"
+              className="w-full rounded-2xl border-[1px]"
+              style={{ borderColor: shopDetails?.color }}
               src={shopDetails?.banner}
               alt="Cover"
             />
@@ -303,7 +314,8 @@ const Menu = () => {
                           <img
                             src={product.image}
                             alt={product.image}
-                            className="h-20 w-24 lg:h-36 sm:h-32 md:h-32 lg:w-36 sm:w-32 md:w-32 rounded-xl object-cover"
+                            className="h-20 w-24 lg:h-36 sm:h-32 md:h-32 lg:w-36 sm:w-32 md:w-32 rounded-xl object-cover border-[1px]"
+                            style={{ borderColor: shopDetails?.color }}
                           />
                         </div>
                         <div className="col-span-2 py-3 px-3">
