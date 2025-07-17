@@ -9,6 +9,7 @@ const Details = () => {
   const [productType, setProductType] = useState("");
   const [socialContent, setSocialContent] = useState([]);
   const [shopColor, setShopColor] = useState("");
+  const [shopDetails, setShopDetails] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -22,31 +23,29 @@ const Details = () => {
         setMenuItem(data);
 
         // Fetch product_type from SaleType table
-        const { data: typeData, error: typeError } = await supabase
+        const { data: typeData } = await supabase
           .from("SaleType")
           .select("name")
           .eq("id", data.saleTypeId)
           .single();
-        if (!typeError && typeData) {
-          setProductType(typeData.name);
-        }
+        if (typeData) setProductType(typeData.name);
 
         // Fetch socialContent for this shop
-        const { data: socialData, error: socialError } = await supabase
+        const { data: socialData } = await supabase
           .from("SocialContact")
           .select("*")
           .eq("shopId", data.shopId);
-        if (!socialError && socialData) {
-          setSocialContent(socialData);
-        }
-        // Fetch shop color
-        const { data: shopData, error: shopError } = await supabase
+        if (socialData) setSocialContent(socialData);
+
+        // Fetch shop details (for name, color, profile)
+        const { data: shopData } = await supabase
           .from("Shop")
-          .select("color")
+          .select("color, name, profile")
           .eq("id", data.shopId)
           .single();
-        if (!shopError && shopData) {
+        if (shopData) {
           setShopColor(shopData.color);
+          setShopDetails(shopData);
         }
       }
       setLoading(false);
@@ -54,7 +53,22 @@ const Details = () => {
     fetchProduct();
   }, [id]);
 
-  if (loading) {
+  // Set dynamic title and favicon
+  useEffect(() => {
+    if (shopDetails?.name) {
+      document.title = shopDetails.name;
+    } else {
+      document.title = "Anachak Menu";
+    }
+    if (shopDetails?.profile) {
+      const link = document.querySelector("link[rel~='icon']");
+      if (link) {
+        link.href = shopDetails.profile;
+      }
+    }
+  }, [shopDetails]);
+
+  if (loading || !menuItem) {
     return (
       <div className="flex justify-center items-center h-screen">
         <div
@@ -163,7 +177,7 @@ const Details = () => {
               ))}
           </div>
           {/* Other icons at the end */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             {socialContent
               .filter((icon) => icon.name !== "phone")
               .map((icon, idx) => {
