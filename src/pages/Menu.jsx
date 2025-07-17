@@ -16,7 +16,23 @@ const Menu = () => {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const { shopId } = useParams();
+  useEffect(() => {
+    // Set dynamic title
+    if (shopDetails?.name) {
+      document.title = shopDetails.name;
+    } else {
+      document.title = "Anachak Menu";
+    }
 
+    // Set dynamic favicon
+    if (shopDetails?.profile) {
+      const link = document.querySelector("link[rel~='icon']");
+      if (link) {
+        link.href = shopDetails.profile;
+      }
+    }
+    console.log(shopDetails?.name, shopDetails?.profile);
+  }, [shopDetails?.name, shopDetails?.profile]);
   useEffect(() => {
     const fetchData = async () => {
       if (!shopId) return;
