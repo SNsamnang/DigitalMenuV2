@@ -31,7 +31,7 @@ const Menu = () => {
         link.href = shopDetails.profile;
       }
     }
-    console.log(shopDetails?.name, shopDetails?.profile);
+    
   }, [shopDetails?.name, shopDetails?.profile]);
   useEffect(() => {
     const fetchData = async () => {

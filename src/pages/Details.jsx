@@ -81,9 +81,10 @@ const Details = () => {
 
   const handleBackClick = () => {
     if (menuItem?.shopId) {
-      navigate(`/menu/${menuItem.shopId}`);
+      const shopNameNoSpace = shopDetails.name.replace(/\s+/g, "");
+      navigate(`/shop/${shopNameNoSpace}/${menuItem.shopId}`);
     } else {
-      navigate("/menu");
+      navigate("/shop");
     }
   };
   const newPrice = menuItem.price - menuItem.price * (menuItem.discount / 100);
@@ -91,9 +92,9 @@ const Details = () => {
   return (
     <div className="w-full pb-20 m-auto pt-1">
       <div className="relative w-11/12 lg:w-5/12 md:w-7/12 sm:w-7/12 m-auto bg-white rounded-2xl flex items-center justify-center p-2">
-        <div className="w-full relative">
+        <div className="w-full aspect-square relative">
           <img
-            className="w-full rounded-2xl border-[1px]"
+            className="w-full h-full object-cover rounded-2xl border-[1px]"
             style={{ borderColor: shopColor }}
             src={menuItem.image}
             alt={menuItem.name}
