@@ -109,7 +109,7 @@ const ContentTableShop = ({ shops }) => {
   };
   const handleShopClick = (shopId, name) => {
     const urlName = name.replace(/\s+/g, "");
-    navigate(`/shop/${urlName}/${shopId}`, { state: { shopId, name } }); // Show name without spaces in URL, pass shopId and name as state
+    navigate(`/shop/${urlName}/${shopId}`, { state: { shopId, name } }); // Match /shop/:name/:shopId route
   };
 
   return (

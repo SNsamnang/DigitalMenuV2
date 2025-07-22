@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
-import Menu from "./pages/Shop";
+import Menu from "./pages/Menu";
 import Details from "./pages/Details";
 import Dashboard from "./pages/Admin/Dashboard/Dashboard";
 import Product from "./pages/Admin/Product/Product";
@@ -18,7 +18,7 @@ import "./App.css";
 import ProtectedRoute from "./components/ProtectedRoute";
 import RoleProtectedRoute from "./components/RoleProtectedRoute";
 import AddSocial from "./pages/Admin/SocialMedia/AddSocialMedia";
-import MenuGrid from "./pages/MenuGrid";
+// import MenuGrid from "./pages/MenuGrid";
 // import MenuList from "./pages/MenuList";
 import UpdatePassword from "./pages/UpdatePassword";
 import ResetPassword from "./pages/ResetPassword";
@@ -31,7 +31,7 @@ function App() {
         <Route path="/update-password" element={<UpdatePassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/shop/:name/:shopId" element={<Menu />} />
-        <Route path="/menu-grid/:shopId" element={<MenuGrid />} />
+        {/* <Route path="/menu-grid/:shopId" element={<MenuGrid />} /> */}
         {/* <Route path="/menu-list/:shopId" element={<MenuList />} /> */}
         <Route path="/details/:id" element={<Details />} />
         <Route
