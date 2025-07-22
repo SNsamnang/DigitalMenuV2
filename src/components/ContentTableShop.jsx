@@ -107,8 +107,9 @@ const ContentTableShop = ({ shops }) => {
       window.location.reload();
     }
   };
-  const handleShopClick = (shopId) => {
-    navigate(`/menu/${shopId}`); // Navigate to the Menu page with shopId
+  const handleShopClick = (shopId, name) => {
+    const urlName = name.replace(/\s+/g, "");
+    navigate(`/shop/${urlName}/${shopId}`, { state: { shopId, name } }); // Show name without spaces in URL, pass shopId and name as state
   };
 
   return (
@@ -155,7 +156,7 @@ const ContentTableShop = ({ shops }) => {
               index % 2 === 0 ? "bg-white" : "bg-slate-50"
             } flex items-center px-2 mb-[1px] cursor-pointer hover:bg-slate-100`}
             key={shop.id}
-            onClick={() => handleShopClick(shop.id)}
+            onClick={() => handleShopClick(shop.id, shop.name)}
           >
             <div className="w-[20%] flex items-center">
               <div className="lg:w-1/2 w-full flex items-center justify-center">

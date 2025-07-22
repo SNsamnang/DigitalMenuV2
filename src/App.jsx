@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
-import Menu from "./pages/Menu";
+import Menu from "./pages/Shop";
 import Details from "./pages/Details";
 import Dashboard from "./pages/Admin/Dashboard/Dashboard";
 import Product from "./pages/Admin/Product/Product";
@@ -30,7 +30,7 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/update-password" element={<UpdatePassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/menu/:shopId" element={<Menu />} />
+        <Route path="/shop/:name/:shopId" element={<Menu />} />
         <Route path="/menu-grid/:shopId" element={<MenuGrid />} />
         {/* <Route path="/menu-list/:shopId" element={<MenuList />} /> */}
         <Route path="/details/:id" element={<Details />} />
