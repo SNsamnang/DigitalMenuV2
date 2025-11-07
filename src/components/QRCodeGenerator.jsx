@@ -3,18 +3,50 @@ import { QRCodeCanvas } from "qrcode.react";
 
 const QRCodeGenerator = ({ url, color }) => {
   const [showQR, setShowQR] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const effectiveUrl =
+    url || (typeof window !== "undefined" ? window.location.href : "");
 
   const handleDownload = () => {
     const canvas = document.getElementById("qr-code");
-    const pngUrl = canvas
-      .toDataURL("image/png")
-      .replace("image/png", "image/octet-stream");
-    const downloadLink = document.createElement("a");
-    downloadLink.href = pngUrl;
-    downloadLink.download = "qr-code.png";
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
+    if (!canvas) {
+      console.error("QR canvas element not found. Download aborted.");
+      return;
+    }
+    try {
+      const pngUrl = canvas
+        .toDataURL("image/png")
+        .replace("image/png", "image/octet-stream");
+      const downloadLink = document.createElement("a");
+      downloadLink.href = pngUrl;
+      downloadLink.download = "qr-code.png";
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    } catch (err) {
+      console.error("Failed to generate PNG from canvas:", err);
+    }
+  };
+
+  const handleCopy = async () => {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(effectiveUrl);
+      } else {
+        const textarea = document.createElement("textarea");
+        textarea.value = effectiveUrl;
+        textarea.style.position = "fixed";
+        textarea.style.left = "-9999px";
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+      }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Copy failed", err);
+    }
   };
 
   return (
@@ -25,12 +57,11 @@ const QRCodeGenerator = ({ url, color }) => {
         style={{ backgroundColor: color }}
       >
         <i className="fas fa-qrcode"></i>
-        
       </button>
 
       {showQR && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-4 rounded-lg shadow-lg">
+          <div className="bg-white p-4 rounded-lg shadow-lg flex flex-col items-center">
             <div className="flex justify-end mb-2">
               <button
                 onClick={() => setShowQR(false)}
@@ -47,6 +78,31 @@ const QRCodeGenerator = ({ url, color }) => {
               includeMargin={true}
               style={{ padding: "10px" }}
             />
+
+            {/* URL display + copy */}
+            <div className="mt-3 flex flex-col items-center space-y-2">
+              <div className="flex items-center space-x-2 w-full">
+                <input
+                  type="text"
+                  readOnly
+                  value={effectiveUrl}
+                  className="w-64 md:w-96 px-3 py-2 border rounded bg-gray-50 text-sm truncate"
+                  title={effectiveUrl}
+                />
+                <button
+                  onClick={handleCopy}
+                  className="px-3 py-2 rounded text-sm"
+                  style={{ backgroundColor: color }}
+                >
+                  {copied ? (
+                    <span className="text-white">Copied</span>
+                  ) : (
+                    <i className="fas fa-copy text-white"></i>
+                  )}
+                </button>
+              </div>
+            </div>
+
             <div className="mt-4 flex justify-center space-x-2">
               <button
                 onClick={handleDownload}
