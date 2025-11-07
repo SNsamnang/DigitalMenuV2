@@ -4,6 +4,7 @@ import SideBar from "../components/SideBar";
 import { Link, useParams } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import TrackPageView from "../components/TrackPageView";
+import QRCodeGenerator from "../components/QRCodeGenerator";
 
 const Menu = () => {
   const { i18n } = useTranslation();
@@ -184,7 +185,7 @@ const Menu = () => {
             }
           >
             <div className="flex justify-between items-start p-2">
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center justify-between w-full lg:w-auto">
                 <span
                   onClick={toggleSidebar}
                   className="w-10 h-10 rounded-full bg-white flex items-center justify-center cursor-pointer"
@@ -194,6 +195,23 @@ const Menu = () => {
                     style={{ color: shopDetails?.color }}
                   ></i>
                 </span>
+                <div className="flex justify-between">
+                  <button onClick={toggleLanguage} className="lg:hidden">
+                    {i18n.language === "en" ? (
+                      <img
+                        src="/anachak/engflag.png"
+                        className="h-7 w-7 rounded-full cursor-pointer"
+                        alt="English Flag"
+                      />
+                    ) : (
+                      <img
+                        src="/anachak/khflag.png"
+                        className="h-7 w-7 rounded-full cursor-pointer"
+                        alt="Khmer Flag"
+                      />
+                    )}
+                  </button>
+                </div>
               </div>
               <img
                 src={shopDetails?.profile}
@@ -398,6 +416,9 @@ const Menu = () => {
         </div>
         <TrackPageView />
         {/* Create by Anachark */}
+        <div className="w-full flex justify-center items-center">
+          <QRCodeGenerator url={shopDetails?.url} color={shopDetails?.color} />
+        </div>
         <div className="w-full bg-white p-3 text-center">
           <div className="text-xl text-gray-400 font-bold">
             Created by{" "}
