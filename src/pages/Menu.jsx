@@ -3,6 +3,7 @@ import { useRef, useState, useEffect } from "react";
 import SideBar from "../components/SideBar";
 import { Link, useParams } from "react-router-dom";
 import { supabase } from "../supabaseClient";
+import TrackPageView from "../components/TrackPageView";
 
 const Menu = () => {
   const { i18n } = useTranslation();
@@ -31,7 +32,6 @@ const Menu = () => {
         link.href = shopDetails.profile;
       }
     }
-    
   }, [shopDetails?.name, shopDetails?.profile]);
   useEffect(() => {
     const fetchData = async () => {
@@ -396,6 +396,7 @@ const Menu = () => {
             <i className="fa-solid fa-chevron-up text-2xl"></i>
           </span>
         </div>
+        <TrackPageView />
         {/* Create by Anachark */}
         <div className="w-full bg-white p-3 text-center">
           <div className="text-xl text-gray-400 font-bold">

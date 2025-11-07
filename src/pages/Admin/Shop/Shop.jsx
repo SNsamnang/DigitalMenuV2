@@ -138,8 +138,9 @@ const Shop = () => {
                 { name: "Shop", width: "w-[20%] text-xs lg:text-lg" },
                 { name: "Industry", width: "w-[20%] text-xs lg:text-lg" },
                 { name: "Owner", width: "w-[20%] text-xs lg:text-lg" },
-                { name: "Status", width: "w-[20%] text-xs lg:text-lg" },
-                { name: "Action", width: "w-[20%] text-xs lg:text-lg" },
+                { name: "Status", width: "w-[15%] text-xs lg:text-lg" },
+                { name: "Action", width: "w-[15%] text-xs lg:text-lg" },
+                { name: "View", width: "w-[10%] text-xs lg:text-lg"}
               ]}
             />
             <ContentTableShop shops={paginatedShops} />

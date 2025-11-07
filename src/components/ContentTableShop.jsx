@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import ShopViewCount from "./ShopViewCount";
 import { useNavigate, Link } from "react-router-dom";
 import { deleteShop } from "../controller/shop/shopController";
 import { supabase } from "../supabaseClient";
@@ -109,7 +110,11 @@ const ContentTableShop = ({ shops }) => {
   };
   const handleShopClick = (shopId, name) => {
     const urlName = name.replace(/\s+/g, "");
-    navigate(`/shop/${urlName}/${shopId}`, { state: { shopId, name } }); // Match /shop/:name/:shopId route
+    // Open in new tab using window.open
+    window.open(
+      `${window.location.origin}/shop/${urlName}/${shopId}`,
+      "_blank"
+    );
   };
 
   return (
@@ -119,7 +124,7 @@ const ContentTableShop = ({ shops }) => {
         <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-5 rounded-lg shadow-lg text-center w-[90%] max-w-lg">
             <p className="text-gray-800">{dialogMessage}</p>
-            <div className="mt-4 flex justify-center gap-4">
+            <div className="mt-4 flex justify-center gap-2">
               {dialogType === "confirm" ? (
                 <>
                   <button
@@ -176,7 +181,7 @@ const ContentTableShop = ({ shops }) => {
             <p className="text-gray-600 w-[20%] text-center text-ellipsis">
               {shop.Users ? shop.Users.username : "Unknown"}
             </p>
-            <p className="text-gray-600 w-[20%] text-center">
+            <p className="text-gray-600 w-[15%] text-center">
               <span>
                 <i
                   className={`fa-solid fa-circle text-[10px] p-2 ${
@@ -185,7 +190,7 @@ const ContentTableShop = ({ shops }) => {
                 ></i>
               </span>
             </p>
-            <div className="w-[20%] flex justify-center">
+            <div className="w-[15%] flex justify-center">
               {/* Edit Button */}
               <button
                 className="rounded-lg w-7 h-7 hover:bg-slate-300"
@@ -206,6 +211,10 @@ const ContentTableShop = ({ shops }) => {
               >
                 <i className="fa-solid fa-trash text-red-400"></i>
               </button>
+            </div>
+            <div className="w-[10%] text-center flex justify-center items-center gap-1 text-orange-400 text-[14px]">
+              <i className="fa-solid fa-eye text-[12px]"></i>
+              <ShopViewCount shopId={shop.id} name={shop.name} />
             </div>
           </div>
         );
