@@ -219,6 +219,28 @@ export const getTotalViews = async (pageUrl) => {
   }
 };
 
+// Get total historical views by matching the numeric id at the end of the URL.
+// This is useful when URL formatting may differ but the resource id is consistent.
+export const getTotalViewsById = async (id) => {
+  try {
+    const pattern = `%/${id}`;
+    const { data, error } = await supabase
+      .from("daily_page_views")
+      .select("view_count")
+      .like("page_url", pattern);
+
+    if (error) {
+      console.error("Error fetching total views by id:", error);
+      return 0;
+    }
+
+    return data.reduce((total, record) => total + record.view_count, 0);
+  } catch (error) {
+    console.error("Unexpected error in getTotalViewsById:", error);
+    return 0;
+  }
+};
+
 // Get today's views for a URL
 export const getTodayViews = async (pageUrl) => {
   try {
@@ -236,6 +258,28 @@ export const getTodayViews = async (pageUrl) => {
     return data?.view_count || 0;
   } catch (error) {
     console.error("Unexpected error in getTodayViews:", error);
+    return 0;
+  }
+};
+
+// Get today's views by matching the numeric id at the end of the URL.
+export const getTodayViewsById = async (id) => {
+  try {
+    const pattern = `%/${id}`;
+    const { data, error } = await supabase
+      .from("page_views")
+      .select("view_count")
+      .like("page_url", pattern);
+
+    if (error) {
+      console.error("Error fetching today's views by id:", error);
+      return 0;
+    }
+
+    // page_views may return multiple entries matching the pattern; sum them.
+    return data.reduce((sum, record) => sum + (record.view_count || 0), 0);
+  } catch (error) {
+    console.error("Unexpected error in getTodayViewsById:", error);
     return 0;
   }
 };

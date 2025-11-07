@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
-import { getTotalViews, getTodayViews } from "../utils/viewCounter";
+import {
+  getTotalViews,
+  getTodayViews,
+  getTotalViewsById,
+  getTodayViewsById,
+} from "../utils/viewCounter";
 
 // ShopViewCount can accept either:
 // - a single shop via props { shopId, name }
@@ -20,9 +25,9 @@ const ShopViewCount = ({ shopId, name, shops = [] }) => {
 
     const fetchForSingle = async (id, shopName) => {
       try {
-        const url = buildUrl(shopName, id);
-        const t = await getTodayViews(url);
-        const h = await getTotalViews(url);
+        // Use ID-based lookup to avoid mismatches caused by varying URL formatting
+        const t = await getTodayViewsById(id);
+        const h = await getTotalViewsById(id);
         if (mounted) {
           setTodayCount(t);
           setHistoricalCount(h);
@@ -42,10 +47,9 @@ const ShopViewCount = ({ shopId, name, shops = [] }) => {
         let totalHistorical = 0;
         // fetch serially to avoid overwhelming the client; number of shops should be small
         for (const s of shopsArr) {
-          const url = buildUrl(s.name, s.id);
-          // getTodayViews reads from page_views (single) and returns 0 if not present
-          const t = await getTodayViews(url);
-          const h = await getTotalViews(url);
+          // Use ID-based lookup to ensure only the same id is compared
+          const t = await getTodayViewsById(s.id);
+          const h = await getTotalViewsById(s.id);
           totalToday += t || 0;
           totalHistorical += h || 0;
         }
