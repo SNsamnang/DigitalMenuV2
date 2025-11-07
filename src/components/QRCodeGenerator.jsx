@@ -72,7 +72,7 @@ const QRCodeGenerator = ({ url, color }) => {
             </div>
             <QRCodeCanvas
               id="qr-code"
-              value={url}
+              value={effectiveUrl}
               size={256}
               level={"H"}
               includeMargin={true}
