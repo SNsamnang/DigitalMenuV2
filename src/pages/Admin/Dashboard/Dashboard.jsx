@@ -135,14 +135,9 @@ const Dashboard = () => {
         .select("authId, status");
       if (dbError || !dbUsers) return;
 
-      // Build status array
+      // Build status array (only 'active' and 'disable')
       const statusUsers = dbUsers.map((user) => ({
-        status:
-          user.status === 1
-            ? "active"
-            : user.status === 0
-            ? "disable"
-            : "pending",
+        status: user.status === 1 ? "active" : "disable",
       }));
 
       setUserStatusData(statusUsers);
@@ -390,17 +385,6 @@ const Dashboard = () => {
               <div>({perShopTotals.length} shop)</div>
             </div>
           </div>
-          <div className={`grid ${gridCols} gap-3 pt-3`}>
-            {cards.map((card, idx) => (
-              <Card
-                key={idx}
-                title={card.title}
-                icon={card.icon}
-                value={card.value}
-                link={card.link}
-              />
-            ))}
-          </div>
           <div className="w-full m-auto grid grid-cols-1 lg:grid-cols-12 gap-5">
             <>
               {role === "super admin" && (
@@ -426,6 +410,17 @@ const Dashboard = () => {
                 <LineChartComponent shopData={shopData} />
               </div>
             </div>
+          </div>
+          <div className={`grid ${gridCols} gap-3 pt-3`}>
+            {cards.map((card, idx) => (
+              <Card
+                key={idx}
+                title={card.title}
+                icon={card.icon}
+                value={card.value}
+                link={card.link}
+              />
+            ))}
           </div>
         </div>
       </div>

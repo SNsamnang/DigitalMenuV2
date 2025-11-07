@@ -10,11 +10,10 @@ import {
 
 // Process users to count by status
 export const processUserStatuses = (users) => {
-  const statusCount = { Pending: 0, Active: 0, Disable: 0 };
+  const statusCount = { Active: 0, Disable: 0 };
   users.forEach((user) => {
-    if (user.status === "pending") statusCount.Pending += 1;
-    else if (user.status === 1 || user.status === "active") statusCount.Active += 1;
-    else if (user.status === 0 || user.status === "disable") statusCount.Disable += 1;
+    if (user.status === 1 || user.status === "active") statusCount.Active += 1;
+    else statusCount.Disable += 1; // treat anything else as disabled
   });
   return Object.keys(statusCount).map((status) => ({
     name: status,
@@ -22,7 +21,7 @@ export const processUserStatuses = (users) => {
   }));
 };
 
-const COLORS = ["#FFBB28", "#7BB662", "#E03C32"];
+const COLORS = ["#7BB662", "#E03C32"]; // Active (green), Disable (red)
 
 const PieChartComponent = ({ users = [] }) => {
   const data = processUserStatuses(users);
