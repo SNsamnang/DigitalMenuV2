@@ -30,17 +30,30 @@ const getTodayRange = () => {
   return { startOfDay, endOfDay };
 };
 
-// Check if it's time to transfer (23:59)
+// Configurable transfer time (hour and minute, 24-hour clock)
+const TRANSFER_HOUR = 23; // 23 = 11 PM
+const TRANSFER_MINUTE = 59; // :59 minutes
+
+// Check if it's time to transfer (configurable time)
 export const checkTransferTime = () => {
   const now = new Date();
   const hours = now.getHours();
   const minutes = now.getMinutes();
-  return hours === 23 && minutes === 59;
+  const shouldTransfer = hours === TRANSFER_HOUR && minutes === TRANSFER_MINUTE;
+  if (shouldTransfer) {
+    console.log(
+      `[ViewCounter] Transfer time check: YES - It's ${String(
+        TRANSFER_HOUR
+      ).padStart(2, "0")}:${String(TRANSFER_MINUTE).padStart(2, "0")}`
+    );
+  }
+  return shouldTransfer;
 };
 
 // Transfer views from page_views to daily_page_views
 export const transferDailyViews = async () => {
   try {
+    console.log("[ViewCounter] Starting daily transfer...");
     const { startOfDay } = getTodayRange();
 
     // Get all records from page_views
@@ -54,6 +67,9 @@ export const transferDailyViews = async () => {
     }
 
     if (pageViews && pageViews.length > 0) {
+      console.log(
+        `[ViewCounter] Found ${pageViews.length} records to transfer`
+      );
       // Insert into daily_page_views
       const now = new Date();
       const formattedDate = formatDateTime(now);
@@ -80,7 +96,11 @@ export const transferDailyViews = async () => {
 
       if (deleteError) {
         console.error("Error clearing page_views:", deleteError);
+      } else {
+        console.log("[ViewCounter] Successfully cleared page_views table");
       }
+    } else {
+      console.log("[ViewCounter] No records found to transfer");
     }
   } catch (error) {
     console.error("Unexpected error in transferDailyViews:", error);
@@ -146,19 +166,26 @@ export const transferViewsNow = async () => {
 let _dailyTransferInterval = null;
 let _nextTransferTimeout = null;
 
-// Calculate milliseconds until next end-of-day (23:59)
-const getMsUntilEndOfDay = () => {
+// Calculate milliseconds until next configured transfer time
+const getMsUntilNextTransfer = () => {
   const now = new Date();
   const target = new Date(now);
-  target.setHours(23, 59, 0, 0);
+  target.setHours(TRANSFER_HOUR, TRANSFER_MINUTE, 0, 0);
   if (target <= now) target.setDate(target.getDate() + 1);
-  return target - now;
+  const ms = target - now;
+  console.log(
+    `[ViewCounter] Next transfer scheduled at ${target.toString()} (in ${Math.round(
+      ms / 1000 / 60
+    )} minutes)`
+  );
+  return ms;
 };
 
 // Start daily transfer at end of day (23:59)
 export const startEndOfDayTransfer = () => {
   if (_dailyTransferInterval || _nextTransferTimeout) {
     // already running
+    console.log("[ViewCounter] Transfer already scheduled - skipping");
     return () => {
       if (_dailyTransferInterval) clearInterval(_dailyTransferInterval);
       if (_nextTransferTimeout) clearTimeout(_nextTransferTimeout);
@@ -167,17 +194,23 @@ export const startEndOfDayTransfer = () => {
     };
   }
 
-  // First, schedule the next end-of-day transfer
-  const msUntilEndOfDay = getMsUntilEndOfDay();
+  console.log("[ViewCounter] Setting up scheduled transfer");
+  // First, schedule the next transfer
+  const msUntilNext = getMsUntilNextTransfer();
   _nextTransferTimeout = setTimeout(() => {
-    // At 23:59: perform transfer
-    transferDailyViews(); // Do first transfer
+    console.log("[ViewCounter] Initial transfer timeout reached");
 
-    // Then set up daily interval (24 hours = 86400000 ms)
-    _dailyTransferInterval = setInterval(transferDailyViews, 86400000);
+    // Check every minute for the configured transfer time
+    _dailyTransferInterval = setInterval(() => {
+      console.log("[ViewCounter] Checking if it's time to transfer...");
+      if (checkTransferTime()) {
+        console.log("[ViewCounter] It's transfer time - executing transfer");
+        transferDailyViews();
+      }
+    }, 60000); // Check every minute
 
     _nextTransferTimeout = null;
-  }, msUntilEndOfDay);
+  }, msUntilNext);
 
   return () => {
     if (_dailyTransferInterval) clearInterval(_dailyTransferInterval);
