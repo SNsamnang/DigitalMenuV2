@@ -180,7 +180,9 @@ const Menu = () => {
                       : shopDetails?.color,
                   }
                 : {
-                    background: shopDetails?.color,
+                    background: shopDetails?.cover
+                      ? `url(${shopDetails.cover}) center/cover`
+                      : shopDetails?.color,
                   }
             }
           >
