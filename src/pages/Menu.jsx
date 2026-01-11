@@ -364,7 +364,7 @@ const Menu = () => {
                           <p className="text-[14px] lg:text-[17px] sm:text-[16px] md:text-[16px] font-bold text-green-600">
                             {product.name}
                           </p>
-                          <p className="text-[10px] lg:text-[13px] sm:text-[12px] md:text-[12px]">
+                          <p className="w-full text-[10px] sm:text-[12px] md:text-[12px] lg:text-[13px] break-words whitespace-normal">
                             {product.description}
                           </p>
                         </div>

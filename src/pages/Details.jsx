@@ -148,7 +148,10 @@ const Details = () => {
             )}
           </div>
         </div>
-        <p className="text-gray-600 font-khmer">{menuItem.description}</p>
+        <p className="w-full text-gray-600 font-khmer break-words whitespace-normal">
+          {menuItem.description}
+        </p>
+
         <div className="mt-4 flex w-full items-center justify-between gap-4">
           {/* Phone at the start */}
           <div className="flex items-center gap-4">
