@@ -270,7 +270,7 @@ const Menu = () => {
                   selectedCategory === null
                     ? shopDetails?.color
                     : "transparent",
-                borderWidth: selectedCategory === null ? "2px" : "1px",
+                borderWidth: selectedCategory === null ? "1px" : "1px",
                 borderStyle: "solid",
               }}
               onClick={() => handleRefresh()}
@@ -288,7 +288,7 @@ const Menu = () => {
                     selectedCategory === category.id
                       ? shopDetails?.color
                       : "transparent",
-                  borderWidth: selectedCategory === category.id ? "2px" : "1px",
+                  borderWidth: selectedCategory === category.id ? "1px" : "1px",
                   borderStyle: "solid",
                 }}
               >
