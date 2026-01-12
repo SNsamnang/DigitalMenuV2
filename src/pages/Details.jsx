@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 
@@ -11,6 +11,7 @@ const Details = () => {
   const [shopColor, setShopColor] = useState("");
   const [shopDetails, setShopDetails] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [relatedProducts, setRelatedProducts] = useState([]);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -47,6 +48,16 @@ const Details = () => {
           setShopColor(shopData.color);
           setShopDetails(shopData);
         }
+
+        // Fetch related products from same shop (exclude current)
+        const { data: relatedData } = await supabase
+          .from("Products")
+          .select("*")
+          .eq("shopId", data.shopId)
+          .neq("id", data.id)
+          .eq("status", 1)
+          .limit(6);
+        if (relatedData) setRelatedProducts(relatedData || []);
       }
       setLoading(false);
     };
@@ -229,6 +240,54 @@ const Details = () => {
           </div>
         </div>
       </div>
+
+      {relatedProducts && relatedProducts.length > 0 && (
+        <div className="w-10/12 m-auto lg:w-10/12 mt-6">
+          <h3 className="text-xl font-bold mb-4" style={{ color: shopColor }}>
+            More from this shop
+          </h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            {relatedProducts.map((p) => (
+              <Link
+                to={`/details/${p.id}`}
+                key={p.id}
+                className="bg-white rounded-lg p-3 flex flex-col items-start shadow-sm"
+              >
+                <div className="w-full h-28 overflow-hidden rounded-md mb-2">
+                  <img
+                    src={p.image}
+                    alt={p.name}
+                    className="w-full h-full object-cover"
+                    style={{ borderColor: shopColor }}
+                  />
+                </div>
+                <p
+                  className="font-bold truncate w-full"
+                  style={{ color: shopColor }}
+                >
+                  {p.name}
+                </p>
+                <div className="mt-2">
+                  {p.discount > 0 ? (
+                    <>
+                      <span className="text-gray-500 line-through mr-2">
+                        ${p.price}
+                      </span>
+                      <span className="font-bold" style={{ color: shopColor }}>
+                        ${(p.price - p.price * (p.discount / 100)).toFixed(2)}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="font-bold" style={{ color: shopColor }}>
+                      ${p.price}
+                    </span>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
