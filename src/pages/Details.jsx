@@ -125,7 +125,7 @@ const Details = () => {
           ID: 00{menuItem.id}
         </p>
         <div className="flex justify-between items-center flex-wrap">
-          <h2 className="text-green-700 text-2xl font-bold py-3 font-khmer">
+          <h2 className=" text-green-700 text-2xl font-bold py-3 font-khmer break-words whitespace-normal">
             {menuItem.name}
           </h2>
           <div className="mb-2 flex items-center">

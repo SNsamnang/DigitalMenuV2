@@ -363,17 +363,17 @@ const Menu = () => {
                               ID:00{product.id}
                             </p>
                           </div>
-                          <p className="text-[14px] lg:text-[17px] sm:text-[16px] md:text-[16px] font-bold text-green-600">
+                          <p className="text-[14px] lg:text-[17px] sm:text-[16px] md:text-[16px] font-bold text-green-600 truncate">
                             {product.name}
                           </p>
                           <p
                             className="w-full text-[10px] sm:text-[12px] md:text-[12px] lg:text-[13px] break-words whitespace-normal"
                             style={{
-                              display: '-webkit-box',
+                              display: "-webkit-box",
                               WebkitLineClamp: 3,
-                              WebkitBoxOrient: 'vertical',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
+                              WebkitBoxOrient: "vertical",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
                             }}
                           >
                             {product.description}
