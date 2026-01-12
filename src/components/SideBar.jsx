@@ -140,9 +140,9 @@ const SideBar = ({ isOpen, toggleSidebar, closeSidebar, shopId }) => {
                         style={{ color: shopDetails?.color }}
                       ></i>
                     </a>
-                    <a href={`tel:${icon.link_contact}`} className="text-base font-bold" style={{ color: shopDetails?.color }}>
+                    {/* <a href={`tel:${icon.link_contact}`} className="text-base font-bold" style={{ color: shopDetails?.color }}>
                       {icon.link_contact}
-                    </a>
+                    </a> */}
                   </div>
                 ))}
           </div>
