@@ -55,15 +55,35 @@ const SideBar = ({ isOpen, toggleSidebar, closeSidebar, shopId }) => {
       >
         {/* Sidebar Header */}
         <div
-          className="block p-4 border-b border-gray-200"
-          style={{ backgroundColor: shopDetails?.color }}
+          className="block p-4 border-b border-gray-200 relative overflow-hidden"
+          style={{ backgroundColor: shopDetails?.cover ? undefined : shopDetails?.color || "#ffffff" }}
         >
-          <div className="flex justify-center items-center">
-            <img className="w-28 rounded-full" src={shopDetails?.profile} alt="Logo" />
+          {shopDetails?.cover && (
+            <div
+              className="absolute inset-0 bg-center bg-cover"
+              style={{
+                backgroundImage: `url(${shopDetails.cover})`,
+                filter: "blur(2px)",
+                opacity: 0.9,
+              }}
+            />
+          )}
+
+          <div className="relative z-10 flex flex-col items-center">
+            <div className="flex justify-center items-center">
+              <img
+                className="w-28 rounded-full"
+                src={shopDetails?.profile}
+                alt="Logo"
+              />
+            </div>
+            <h2
+              className="text-center font-bold text-2xl mt-2"
+              style={{ color: shopDetails?.color || "#000000" }}
+            >
+              {shopDetails?.name || "Shop Name"}
+            </h2>
           </div>
-          <h2 className="text-center font-bold text-2xl text-white">
-            {shopDetails?.name || "Shop Name"}
-          </h2>
         </div>
 
         {/* Sidebar Content */}
@@ -83,10 +103,10 @@ const SideBar = ({ isOpen, toggleSidebar, closeSidebar, shopId }) => {
               </span>
             )}
           </div>
-          <h2 className="text-center font-bold text-2xl text-green-600">
+          <h2 className="text-center font-bold text-xl text-green-600">
             {shopDetails?.address || "Shop address"}
           </h2>
-          
+
           <div className="flex justify-center gap-2">
             {socialContent
               .filter((icon) => icon.name !== "phone") // Exclude the phone icon
@@ -121,7 +141,7 @@ const SideBar = ({ isOpen, toggleSidebar, closeSidebar, shopId }) => {
                       style={{ color: shopDetails?.color }}
                     ></i>
                   </span>
-                  <p className="text-2xl font-bold text-green-600">
+                  <p className="text-xl font-bold text-green-600">
                     {icon.link_contact}
                   </p>
                 </div>
