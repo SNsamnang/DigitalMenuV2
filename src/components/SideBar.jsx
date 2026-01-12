@@ -125,27 +125,26 @@ const SideBar = ({ isOpen, toggleSidebar, closeSidebar, shopId }) => {
                   </Link>
                 </span>
               ))}
-          </div>
-          <div className="flex justify-center gap-2">
-            {socialContent
-              .filter((icon) => icon.name === "phone") // Include only the phone icon
-              .slice(0, 5) // Limit to 5 icons
-              .map((icon, index) => (
-                <div key={index} className="flex items-center gap-2">
-                  <span
-                    className="w-10 h-10 rounded-full border-2 bg-white flex items-center justify-center cursor-pointer"
-                    style={{ borderColor: shopDetails?.color }}
-                  >
-                    <i
-                      className={`fas fa-${icon.name} text-2xl`}
-                      style={{ color: shopDetails?.color }}
-                    ></i>
-                  </span>
-                  <p className="text-xl font-bold text-green-600">
-                    {icon.link_contact}
-                  </p>
-                </div>
-              ))}
+              {socialContent
+                .filter((icon) => icon.name === "phone") // Include only the phone icon
+                .slice(0, 5) // Limit to 5 icons
+                .map((icon, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <a
+                      href={`tel:${icon.link_contact}`}
+                      className="w-10 h-10 rounded-full border-2 bg-white flex items-center justify-center cursor-pointer"
+                      style={{ borderColor: shopDetails?.color }}
+                    >
+                      <i
+                        className={`fas fa-${icon.name} text-2xl`}
+                        style={{ color: shopDetails?.color }}
+                      ></i>
+                    </a>
+                    <a href={`tel:${icon.link_contact}`} className="text-base font-bold" style={{ color: shopDetails?.color }}>
+                      {icon.link_contact}
+                    </a>
+                  </div>
+                ))}
           </div>
         </div>
       </div>
