@@ -146,7 +146,7 @@ const Details = () => {
   const newPrice = menuItem.price - menuItem.price * (menuItem.discount / 100);
 
   return (
-    <div className="w-full pb-20 m-auto pt-1">
+    <div className="w-full pb-20 m-auto">
       {/* Details Page */}
       <div className="w-full">
         <div
@@ -200,7 +200,7 @@ const Details = () => {
                 top: "50%",
                 left: fixedStyle.left,
                 width: fixedStyle.width,
-                transform: "translateY(-50%)",
+                transform: "translateY(-60%)",
                 zIndex: 60,
               }
             : { borderColor: shopColor }
@@ -315,7 +315,7 @@ const Details = () => {
         </div>
       </div>
       {relatedProducts && relatedProducts.length > 0 && (
-        <div className="w-10/12 m-auto lg:w-10/12 mt-6 max-h-[50vh] overflow-y-auto pr-2">
+        <div className="w-10/12 m-auto lg:w-10/12 mt-6 max-h-[50vh] overflow-y-auto pr-2 scrollbar-hide">
           <h3 className="text-xl font-bold mb-4" style={{ color: shopColor }}>
             More from this shop
           </h3>
