@@ -375,7 +375,7 @@ const Details = () => {
               <a
                 href={`/details/${product.id}`}
                 key={product.id}
-                className="w-full h-full mt-2 border-[1px] rounded-2xl shadow-md hover:shadow-lg hover:border-[2px] cursor-pointer bg-white"
+                className="w-full h-full mt-2 border-[1px] border-white rounded-2xl shadow-md hover:shadow-lg hover:border-[2px] cursor-pointer bg-white"
               >
                 <div className="w-full h-28 lg:h-40 sm:h-36 md:h-36 mt-[2px] grid grid-cols-4 gap-2 px-3">
                   <div className="col-span-1 py-4 relative">
