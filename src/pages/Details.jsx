@@ -76,7 +76,7 @@ const Details = () => {
 
     const update = () => {
       const cardRect = cardRef.current.getBoundingClientRect();
-      const triggerPoint = window.innerHeight * 0.6; // 50% of viewport
+      const triggerPoint = window.innerHeight * 0.4; // 50% of viewport
 
       if (cardRect.top <= triggerPoint) {
         if (!cardFixed) {
@@ -197,11 +197,11 @@ const Details = () => {
             ? {
                 borderColor: shopColor,
                 position: "fixed",
-                top: "50%",
+                top: "40%",
                 left: fixedStyle.left,
                 width: fixedStyle.width,
-                transform: "translateY(-50%)",
-                zIndex: 50,
+                transform: "translateY(-40%)",
+                zIndex: 60,
               }
             : { borderColor: shopColor }
         }
