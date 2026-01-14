@@ -199,7 +199,7 @@ const Details = () => {
           >
             <div className="w-full aspect-square relative">
               <img
-                className={`w-full h-full object-cover rounded-2xl border-[1px] transition-opacity duration-200 ${
+                className={`w-full h-full object-cover bg-white rounded-2xl border-[1px] transition-opacity duration-200 ${
                   cardFixed ? "opacity-0 pointer-events-none" : "opacity-100"
                 }`}
                 style={{ borderColor: shopColor }}
@@ -367,7 +367,7 @@ const Details = () => {
       {/* Details Page */}
       {relatedProducts && relatedProducts.length > 0 && (
         <div className="w-11/12 m-auto lg:w-10/12 mt-6 max-h-[50vh] overflow-y-auto pr-2 scrollbar-hide">
-          <h3 className="text-xl font-bold mb-4" style={{ color: shopColor }}>
+          <h3 className="text-xl font-bold mb-1 pl-3" style={{ color: shopColor }}>
             More from this shop
           </h3>
           <div className="full">
