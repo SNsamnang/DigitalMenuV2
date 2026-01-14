@@ -1,5 +1,6 @@
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useRef } from "react";
 import { supabase } from "../supabaseClient";
 
 const Details = () => {
@@ -12,6 +13,12 @@ const Details = () => {
   const [shopDetails, setShopDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [relatedProducts, setRelatedProducts] = useState([]);
+  const imageRef = useRef(null);
+  const cardRef = useRef(null);
+  const [cardFixed, setCardFixed] = useState(false);
+  const [fixedStyle, setFixedStyle] = useState({ left: 0, width: 0 });
+  const [fixedHeight, setFixedHeight] = useState(0);
+  const [overlayWidth, setOverlayWidth] = useState(null);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -64,6 +71,44 @@ const Details = () => {
     fetchProduct();
   }, [id]);
 
+  useEffect(() => {
+    if (!cardRef.current) return;
+
+    const update = () => {
+      const cardRect = cardRef.current.getBoundingClientRect();
+      const triggerPoint = window.innerHeight * 0.5; // 50% of viewport
+
+      if (cardRect.top <= triggerPoint) {
+        if (!cardFixed) {
+          setFixedStyle({ left: cardRect.left, width: cardRect.width });
+          setFixedHeight(cardRect.height);
+          setCardFixed(true);
+        }
+      } else {
+        if (cardFixed) setCardFixed(false);
+      }
+    };
+
+    update();
+    window.addEventListener("scroll", update);
+    window.addEventListener("resize", update);
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, [cardFixed]);
+
+  useEffect(() => {
+    const updateOverlay = () => {
+      if (!imageRef.current) return;
+      const rect = imageRef.current.getBoundingClientRect();
+      setOverlayWidth(rect.width);
+    };
+    updateOverlay();
+    window.addEventListener("resize", updateOverlay);
+    return () => window.removeEventListener("resize", updateOverlay);
+  }, []);
+
   // Set dynamic title and favicon
   useEffect(() => {
     if (shopDetails?.name) {
@@ -102,35 +147,64 @@ const Details = () => {
 
   return (
     <div className="w-full pb-20 m-auto pt-1">
-      <div className="relative w-11/12 lg:w-5/12 md:w-7/12 sm:w-7/12 m-auto bg-white rounded-2xl flex items-center justify-center p-2">
-        <div className="w-full aspect-square relative">
-          <img
-            className="w-full h-full object-cover rounded-2xl border-[1px]"
-            style={{ borderColor: shopColor }}
-            src={menuItem.image}
-            alt={menuItem.name}
-          />
-          <div className="w-full flex justify-between h-5 absolute top-0 left-0 z-10 px-3 mt-3">
-            <span
-              onClick={handleBackClick}
-              className="cursor-pointer w-9 h-9 flex items-center justify-center uppercase font-bold text-[8px] bg-white rounded-full border-[1px]"
-              style={{ color: shopColor, borderColor: shopColor }}
+      {/* Details Page */}
+      <div className="w-full">
+        <div
+          ref={imageRef}
+          className="relative w-11/12 lg:w-5/12 md:w-7/12 sm:w-7/12 m-auto bg-white rounded-2xl flex items-center justify-center p-2"
+        >
+          <div className="w-full aspect-square relative">
+            <img
+              className="w-full h-full object-cover rounded-2xl border-[1px]"
+              style={{ borderColor: shopColor }}
+              src={menuItem.image}
+              alt={menuItem.name}
+            />
+            <div
+              className="h-9 flex justify-between items-center fixed top-3 left-1/2 z-50 px-3 pt-4"
+              style={{
+                transform: "translateX(-50%)",
+                width: overlayWidth ? `${overlayWidth}px` : "90%",
+                maxWidth: "90%",
+              }}
             >
-              <i className="fas fa-chevron-left text-xl"></i>
-            </span>
-            <span
-              className="ml-2 px-4 py-3 flex items-center uppercase font-bold text-[10px] text-white rounded-2xl border-[1px] border-white"
+              <span
+                onClick={handleBackClick}
+                className="cursor-pointer w-9 h-9 flex items-center justify-center uppercase font-bold text-[8px] bg-white rounded-full border-[1px]"
+                style={{ color: shopColor, borderColor: shopColor }}
+              >
+                <i className="fas fa-chevron-left text-xl"></i>
+              </span>
+              {/* <span
+              className="ml-2 px-4 py-1 flex items-center uppercase font-bold text-[10px] text-white rounded-3xl border-[1px] border-white"
               style={{ backgroundColor: shopColor }}
             >
               {productType}
-            </span>
+            </span> */}
+            </div>
           </div>
         </div>
       </div>
+      <div></div>
       <div
         id="Desc"
-        className="w-10/12 m-auto lg:w-[39%] md:w-6/12 sm:w-6/12 bg-white rounded-[30px] shadow-lg p-4 -mt-8 z-50 relative"
-        style={{ borderColor: shopColor }}
+        ref={cardRef}
+        className={`w-10/12 m-auto lg:w-[39%] md:w-6/12 sm:w-6/12 bg-white rounded-[30px] shadow-lg p-4 -mt-8 z-50 ${
+          cardFixed ? "" : "relative"
+        }`}
+        style={
+          cardFixed
+            ? {
+                borderColor: shopColor,
+                position: "fixed",
+                top: "50%",
+                left: fixedStyle.left,
+                width: fixedStyle.width,
+                transform: "translateY(-50%)",
+                zIndex: 60,
+              }
+            : { borderColor: shopColor }
+        }
       >
         <p className="text-sm font-semibold" style={{ color: shopColor }}>
           ID: 00{menuItem.id}
@@ -240,16 +314,15 @@ const Details = () => {
           </div>
         </div>
       </div>
-
       {relatedProducts && relatedProducts.length > 0 && (
-        <div className="w-10/12 m-auto lg:w-10/12 mt-6">
+        <div className="w-10/12 m-auto lg:w-10/12 mt-6 max-h-[50vh] overflow-y-auto pr-2">
           <h3 className="text-xl font-bold mb-4" style={{ color: shopColor }}>
             More from this shop
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {relatedProducts.map((p) => (
-              <Link
-                to={`/details/${p.id}`}
+              <a
+                href={`/details/${p.id}`}
                 key={p.id}
                 className="bg-white rounded-lg p-3 flex flex-col items-start shadow-sm"
               >
@@ -274,7 +347,7 @@ const Details = () => {
                         ${p.price}
                       </span>
                       <span className="font-bold" style={{ color: shopColor }}>
-                        ${(p.price - p.price * (p.discount / 100)).toFixed(2)}
+                        {(p.price - p.price * (p.discount / 100)).toFixed(2)}
                       </span>
                     </>
                   ) : (
@@ -283,7 +356,7 @@ const Details = () => {
                     </span>
                   )}
                 </div>
-              </Link>
+              </a>
             ))}
           </div>
         </div>
