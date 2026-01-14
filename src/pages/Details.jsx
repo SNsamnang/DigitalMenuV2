@@ -76,7 +76,7 @@ const Details = () => {
 
     const update = () => {
       const cardRect = cardRef.current.getBoundingClientRect();
-      const triggerPoint = window.innerHeight * 0.5; // 50% of viewport
+      const triggerPoint = window.innerHeight * 0.6; // 50% of viewport
 
       if (cardRect.top <= triggerPoint) {
         if (!cardFixed) {
@@ -200,8 +200,8 @@ const Details = () => {
                 top: "50%",
                 left: fixedStyle.left,
                 width: fixedStyle.width,
-                transform: "translateY(-60%)",
-                zIndex: 60,
+                transform: "translateY(-50%)",
+                zIndex: 50,
               }
             : { borderColor: shopColor }
         }
@@ -216,7 +216,7 @@ const Details = () => {
           <div className="mb-2 flex items-center">
             {menuItem.discount > 0 ? (
               <>
-                <p className="text-gray-600 line-through text-2xl">
+                <p className="text-gray-500 line-through text-2xl">
                   ${menuItem.price}
                 </p>
                 <p
@@ -233,7 +233,7 @@ const Details = () => {
             )}
           </div>
         </div>
-        <p className="w-full text-gray-600 font-khmer break-words whitespace-normal">
+        <p className="w-full text-gray-500 font-khmer break-words whitespace-normal">
           {menuItem.description}
         </p>
 
