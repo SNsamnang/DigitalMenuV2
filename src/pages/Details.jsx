@@ -292,6 +292,23 @@ const Details = () => {
   return (
     <div className="w-full bg-white">
       <div className="m-auto">
+        {/* BACK BUTTON */}
+        <div className="h-9 w-full flex justify-between align-middle fixed top-0 left-6 z-50 px-3 mt-4">
+          <span
+            onClick={handleBackClick}
+            className="cursor-pointer w-9 h-9 flex items-center justify-center uppercase font-bold text-[8px] bg-white rounded-full border-[1px] shadow-md"
+            style={{ color: shopColor, borderColor: shopColor }}
+          >
+            <i className="fas fa-chevron-left text-xl"></i>
+          </span>
+          {/* <span
+              className="ml-2 px-4 py-1 flex items-center uppercase font-bold text-[10px] text-white rounded-3xl border-[1px] border-white"
+              style={{ backgroundColor: shopColor }}
+            >
+              {productType}
+            </span> */}
+        </div>
+
         <div className="w-full">
           <div
             ref={imageRef}
@@ -360,7 +377,7 @@ const Details = () => {
                 <>
                   <button
                     onClick={handlePrevImage}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/80 hover:bg-white shadow-md flex items-center justify-center transition-all disabled:opacity-50"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full hover:bg-white shadow-md flex items-center justify-center transition-all disabled:opacity-50"
                     disabled={isTransitioning}
                     aria-label="Previous image"
                   >
@@ -371,7 +388,7 @@ const Details = () => {
                   </button>
                   <button
                     onClick={handleNextImage}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/80 hover:bg-white shadow-md flex items-center justify-center transition-all disabled:opacity-50"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full hover:bg-white shadow-md flex items-center justify-center transition-all disabled:opacity-50"
                     disabled={isTransitioning}
                     aria-label="Next image"
                   >
