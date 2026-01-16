@@ -6,6 +6,9 @@ import ImageUploader from "../../../components/ImageUploader";
 import {
   insertProduct,
   updateProduct,
+  insertProductImages,
+  deleteProductImages,
+  getProductImages,
 } from "../../../controller/product/productController";
 import { supabase } from "../../../supabaseClient";
 
@@ -18,6 +21,12 @@ const AddProduct = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [imagePreview, setImagePreview] = useState(null);
+  const [additionalImages, setAdditionalImages] = useState(["", "", ""]);
+  const [additionalImagePreviews, setAdditionalImagePreviews] = useState([
+    "",
+    "",
+    "",
+  ]);
   const [showDialog, setShowDialog] = useState(false);
   const [dialogMessage, setDialogMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
@@ -132,11 +141,44 @@ const AddProduct = () => {
 
   // Load Existing Product Data
   useEffect(() => {
-    if (location.state?.product) {
-      setFormData(location.state.product);
-      setImagePreview(location.state.product.image);
-    }
+    const loadProductData = async () => {
+      if (location.state?.product) {
+        setFormData(location.state.product);
+        setImagePreview(location.state.product.image);
+
+        // Fetch existing additional images
+        const productImages = await getProductImages(location.state.product.id);
+        if (productImages && productImages.length > 0) {
+          const images = ["", "", ""];
+          const previews = ["", "", ""];
+
+          // Fill the first 3 images
+          productImages.forEach((img, index) => {
+            if (index < 3) {
+              images[index] = img.image_url;
+              previews[index] = img.image_url;
+            }
+          });
+
+          setAdditionalImages(images);
+          setAdditionalImagePreviews(previews);
+        }
+      }
+    };
+
+    loadProductData();
   }, [location.state]);
+
+  // Handle Additional Image Upload
+  const handleAdditionalImageUpload = (publicUrl, index) => {
+    if (!publicUrl) return;
+    const newImages = [...additionalImages];
+    const newPreviews = [...additionalImagePreviews];
+    newImages[index] = publicUrl;
+    newPreviews[index] = publicUrl;
+    setAdditionalImages(newImages);
+    setAdditionalImagePreviews(newPreviews);
+  };
 
   // Event Handlers
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
@@ -152,9 +194,9 @@ const AddProduct = () => {
   // Update the handleImageUpload function
   const handleImageUpload = (publicUrl) => {
     if (!publicUrl) return;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      image: publicUrl
+      image: publicUrl,
     }));
     setImagePreview(publicUrl);
   };
@@ -163,9 +205,9 @@ const AddProduct = () => {
   const getFilteredProductTypes = () => {
     if (userRole?.role === "super admin") return productTypes;
     // Get shop IDs owned by current user
-    const userShopIds = shops.map(shop => shop.id);
+    const userShopIds = shops.map((shop) => shop.id);
     // Only product types whose shopId is in user's shops
-    return productTypes.filter(pt => userShopIds.includes(pt.shopId));
+    return productTypes.filter((pt) => userShopIds.includes(pt.shopId));
   };
 
   const validateForm = () => {
@@ -248,6 +290,37 @@ const AddProduct = () => {
         : await insertProduct(productData);
 
       if (result.success) {
+        // Get the product ID - for new products it's in result.data.id, for updates use formData.id
+        const productId = result.data?.id || formData.id;
+
+        // Handle product images (both for new and updated products)
+        if (productId) {
+          // Always delete old images when updating
+          if (formData.id) {
+            await deleteProductImages(formData.id);
+          }
+
+          // Insert new images (only if there are any)
+          const imagesToInsert = additionalImages
+            .filter((img) => img) // Only include non-empty images
+            .map((img) => ({
+              productId,
+              imageUrl: img,
+            }));
+
+          if (imagesToInsert.length > 0) {
+            const imageResult = await insertProductImages(imagesToInsert);
+            if (!imageResult.success) {
+              console.error(
+                "Warning: Some images failed to insert:",
+                imageResult.message
+              );
+            } else {
+              console.log("Images inserted successfully:", imageResult.data);
+            }
+          }
+        }
+
         setDialogMessage(
           `✅ Product ${formData.id ? "updated" : "added"} successfully!`
         );
@@ -275,17 +348,23 @@ const AddProduct = () => {
             saleTypeId: "",
           });
           setImagePreview(null);
+          setAdditionalImages(["", "", ""]);
+          setAdditionalImagePreviews(["", "", ""]);
         }
       } else {
         setDialogMessage(
-          `❌ Failed to ${formData.id ? "update" : "add"} product: ${result.message}`
+          `❌ Failed to ${formData.id ? "update" : "add"} product: ${
+            result.message
+          }`
         );
         setIsSuccess(false);
         setShowDialog(true);
       }
     } catch (error) {
       console.error("Error saving product:", error);
-      setDialogMessage(`❌ Error: ${error.message || "An unexpected error occurred"}`);
+      setDialogMessage(
+        `❌ Error: ${error.message || "An unexpected error occurred"}`
+      );
       setIsSuccess(false);
       setShowDialog(true);
     }
@@ -461,6 +540,24 @@ const AddProduct = () => {
                 key={`${formData.id}-${Date.now()}`} // Force re-render when editing
               />
             </div>
+
+            {/* Additional Images */}
+            {[0, 1, 2].map((index) => (
+              <div key={`additional-image-${index}`} className="sm:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Additional Image {index + 1}
+                </label>
+                <ImageUploader
+                  onImageUpload={(url) =>
+                    handleAdditionalImageUpload(url, index)
+                  }
+                  initialImage={additionalImagePreviews[index]}
+                  folderPath="product-images"
+                  imageType={`product-additional-${index + 1}`}
+                  key={`additional-${index}-${formData.id}-${Date.now()}`}
+                />
+              </div>
+            ))}
 
             {/* Description */}
             <div className="sm:col-span-2">

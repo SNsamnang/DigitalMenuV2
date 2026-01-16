@@ -1,6 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "../supabaseClient";
 
 const Details = () => {
@@ -13,12 +12,17 @@ const Details = () => {
   const [shopDetails, setShopDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [relatedProducts, setRelatedProducts] = useState([]);
+  const [additionalImages, setAdditionalImages] = useState([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const imageRef = useRef(null);
   const cardRef = useRef(null);
   const [cardFixed, setCardFixed] = useState(false);
   const [fixedStyle, setFixedStyle] = useState({ left: 0, width: 0 });
   const [fixedHeight, setFixedHeight] = useState(0);
   const [overlayWidth, setOverlayWidth] = useState(null);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const isDraggingRef = useRef(false);
+  const dragStartXRef = useRef(0);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -57,7 +61,6 @@ const Details = () => {
         }
 
         // Fetch related products from same shop (exclude current)
-        // Prefer same category (`productTypeId`) first, then fill remaining with other products from the shop
         let related = [];
 
         if (data.productTypeId) {
@@ -75,7 +78,7 @@ const Details = () => {
           }
         }
 
-        // If we don't have 6 items yet, fetch additional products from same shop (different categories)
+        // If we don't have 6 items yet, fetch additional products from same shop
         if (related.length < 6) {
           const excludeIds = [data.id, ...related.map((r) => r.id)];
           const remaining = 6 - related.length;
@@ -109,6 +112,15 @@ const Details = () => {
         }
 
         setRelatedProducts(related || []);
+
+        // Fetch additional images from sup_img_product
+        const { data: imagesData } = await supabase
+          .from("sup_img_product")
+          .select("image_url")
+          .eq("product_id", id);
+        if (imagesData) {
+          setAdditionalImages(imagesData.map((img) => img.image_url));
+        }
       }
       setLoading(false);
     };
@@ -120,7 +132,7 @@ const Details = () => {
 
     const update = () => {
       const cardRect = cardRef.current.getBoundingClientRect();
-      const triggerPoint = window.innerHeight * 0.6; // 60% of viewport
+      const triggerPoint = window.innerHeight * 0.6;
 
       if (cardRect.top <= triggerPoint) {
         if (!cardFixed) {
@@ -168,6 +180,93 @@ const Details = () => {
     }
   }, [shopDetails]);
 
+  // Calculate all images early
+  const allImages = menuItem ? [menuItem.image, ...additionalImages] : [];
+
+  // Handle image navigation
+  const handlePrevImage = () => {
+    if (isTransitioning || allImages.length <= 1) return;
+    setIsTransitioning(true);
+    setCurrentImageIndex((prev) =>
+      prev === 0 ? allImages.length - 1 : prev - 1
+    );
+    setTimeout(() => setIsTransitioning(false), 500);
+  };
+
+  const handleNextImage = () => {
+    if (isTransitioning || allImages.length <= 1) return;
+    setIsTransitioning(true);
+    setCurrentImageIndex((prev) =>
+      prev === allImages.length - 1 ? 0 : prev + 1
+    );
+    setTimeout(() => setIsTransitioning(false), 500);
+  };
+
+  // Handle keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (allImages.length <= 1 || isTransitioning) return;
+      if (e.key === "ArrowLeft") {
+        handlePrevImage();
+      } else if (e.key === "ArrowRight") {
+        handleNextImage();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [allImages.length, isTransitioning]);
+
+  // Handle touch/swipe
+  const handleTouchStart = (e) => {
+    isDraggingRef.current = true;
+    dragStartXRef.current = e.touches[0].clientX;
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isDraggingRef.current) return;
+  };
+
+  const handleTouchEnd = (e) => {
+    if (!isDraggingRef.current) return;
+    isDraggingRef.current = false;
+
+    const currentX = e.changedTouches[0].clientX;
+    const distance = dragStartXRef.current - currentX;
+    const threshold = 50;
+
+    if (distance > threshold) {
+      handleNextImage();
+    } else if (distance < -threshold) {
+      handlePrevImage();
+    }
+  };
+
+  // Handle mouse wheel
+  useEffect(() => {
+    const handleWheel = (e) => {
+      if (!imageRef.current) return;
+      const rect = imageRef.current.getBoundingClientRect();
+      const isOverImage =
+        e.clientX >= rect.left &&
+        e.clientX <= rect.right &&
+        e.clientY >= rect.top &&
+        e.clientY <= rect.bottom;
+
+      if (!isOverImage || allImages.length <= 1 || isTransitioning) return;
+
+      e.preventDefault();
+      if (e.deltaY > 0) {
+        handleNextImage();
+      } else {
+        handlePrevImage();
+      }
+    };
+
+    window.addEventListener("wheel", handleWheel, { passive: false });
+    return () => window.removeEventListener("wheel", handleWheel);
+  }, [allImages.length, isTransitioning]);
+
   if (loading || !menuItem) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -187,6 +286,7 @@ const Details = () => {
       navigate("/shop");
     }
   };
+
   const newPrice = menuItem.price - menuItem.price * (menuItem.discount / 100);
 
   return (
@@ -195,50 +295,102 @@ const Details = () => {
         <div className="w-full">
           <div
             ref={imageRef}
-            className="relative w-11/12 lg:w-5/12 md:w-7/12 sm:w-7/12 m-auto bg-white rounded-2xl flex items-center justify-center p-2"
+            className="relative w-11/12 lg:w-5/12 md:w-7/12 sm:w-7/12 m-auto bg-white rounded-2xl flex items-center justify-center p-2 cursor-grab active:cursor-grabbing"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
           >
-            <div className="w-full aspect-square relative">
-              <img
-                className={`w-full h-full object-cover bg-white rounded-2xl border-[1px] transition-opacity duration-200 ${
-                  cardFixed ? "opacity-0 pointer-events-none" : "opacity-100"
-                }`}
-                style={{ borderColor: shopColor }}
-                src={menuItem.image}
-                alt={menuItem.name}
-              />
+            <div
+              className="w-full aspect-square relative overflow-hidden rounded-2xl border-[1px]"
+              style={{ borderColor: shopColor }}
+            >
+              {/* SLIDER TRACK - HORIZONTAL SCROLL */}
               <div
-                className="h-9 flex justify-between items-center fixed top-3 left-1/2 px-3 pt-4"
+                className="flex h-full transition-transform duration-500 ease-out"
                 style={{
-                  transform: "translateX(-48%)",
-                  width: overlayWidth ? `${overlayWidth}px` : "90%",
-                  maxWidth: "90%",
-                  zIndex: 9999,
+                  transform: `translateX(-${currentImageIndex * 100}%)`,
                 }}
               >
-                <span
-                  onClick={handleBackClick}
-                  className="cursor-pointer w-9 h-9 flex items-center justify-center uppercase font-bold text-[8px] bg-white rounded-full border-[1px]"
-                  style={{ color: shopColor, borderColor: shopColor }}
-                >
-                  <i
-                    className="fas fa-chevron-left text-xl"
-                    style={{ marginBottom: "3px" }}
-                  ></i>
-                </span>
-                {/* <span
-              className="ml-2 px-4 py-1 flex items-center uppercase font-bold text-[10px] text-white rounded-3xl border-[1px] border-white"
-              style={{ backgroundColor: shopColor }}
-            >
-              {productType}
-            </span> */}
+                {allImages.map((img, idx) => (
+                  <img
+                    key={idx}
+                    src={img}
+                    alt={`${menuItem.name}-${idx}`}
+                    className="w-full h-full object-cover flex-shrink-0"
+                    draggable="false"
+                  />
+                ))}
               </div>
+
+              {/* IMAGE COUNTER */}
+              {allImages.length > 1 && (
+                <div className="absolute bottom-3 right-3 bg-black/60 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                  {currentImageIndex + 1} / {allImages.length}
+                </div>
+              )}
+
+              {/* DOTS NAVIGATION */}
+              {allImages.length > 1 && (
+                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                  {allImages.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        if (!isTransitioning) {
+                          setCurrentImageIndex(idx);
+                        }
+                      }}
+                      className={`h-2.5 rounded-full transition-all duration-300 ${
+                        idx === currentImageIndex ? "w-8" : "w-2.5"
+                      }`}
+                      style={{
+                        backgroundColor:
+                          idx === currentImageIndex
+                            ? shopColor
+                            : `${shopColor}80`,
+                      }}
+                      disabled={isTransitioning}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {/* NAVIGATION ARROWS */}
+              {allImages.length > 1 && (
+                <>
+                  <button
+                    onClick={handlePrevImage}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/80 hover:bg-white shadow-md flex items-center justify-center transition-all disabled:opacity-50"
+                    disabled={isTransitioning}
+                    aria-label="Previous image"
+                  >
+                    <i
+                      className="fas fa-chevron-left text-lg"
+                      style={{ color: shopColor }}
+                    ></i>
+                  </button>
+                  <button
+                    onClick={handleNextImage}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white/80 hover:bg-white shadow-md flex items-center justify-center transition-all disabled:opacity-50"
+                    disabled={isTransitioning}
+                    aria-label="Next image"
+                  >
+                    <i
+                      className="fas fa-chevron-right text-lg"
+                      style={{ color: shopColor }}
+                    ></i>
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
+
+        {/* PRODUCT DETAILS CARD */}
         <div
           id="Desc"
           ref={cardRef}
-          className={`w-10/12 m-auto lg:w-[39%] md:w-6/12 sm:w-6/12 bg-white rounded-[30px] shadow-lg p-4 -mt-8 z-50 ${
+          className={`w-10/12 m-auto lg:w-[39%] md:w-6/12 sm:w-6/12 bg-white rounded-[30px] shadow-lg p-4 -mt-8 z-50 border-[1px] ${
             cardFixed ? "" : "relative"
           }`}
           style={
@@ -259,7 +411,7 @@ const Details = () => {
             ID: 00{menuItem.id}
           </p>
           <div className="flex justify-between items-center flex-wrap">
-            <h2 className=" text-green-700 text-2xl font-bold py-3 font-khmer break-words whitespace-normal">
+            <h2 className="text-green-700 text-2xl font-bold py-3 font-khmer break-words whitespace-normal">
               {menuItem.name}
             </h2>
             <div className="mb-2 flex items-center">
@@ -299,7 +451,7 @@ const Details = () => {
                     rel="noopener noreferrer"
                     className="flex items-center gap-2"
                   >
-                    <span className="w-10 h-10 rounded-full border-2 bg-white flex items-center justify-center cursor-pointer">
+                    <span className="w-10 h-10 rounded-full border-2 bg-white flex items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors">
                       <i
                         className="fas fa-phone text-2xl h-8 justify-center items-center flex"
                         style={{ color: shopColor }}
@@ -324,7 +476,10 @@ const Details = () => {
                       `Check out this product:\n${menuItem.name}\n${menuItem.description}\n${menuItem.image}`
                     );
                     const telegramUrl = icon.link_contact.startsWith("@")
-                      ? `${icon.link_contact.replace("@", "")}?text=${message}`
+                      ? `https://t.me/${icon.link_contact.replace(
+                          "@",
+                          ""
+                        )}?text=${message}`
                       : `${icon.link_contact}?text=${message}`;
                     return (
                       <a
@@ -334,7 +489,7 @@ const Details = () => {
                         rel="noopener noreferrer"
                         className="flex items-center gap-2"
                       >
-                        <span className="w-10 h-10 rounded-full border-2 bg-white flex items-center justify-center cursor-pointer">
+                        <span className="w-10 h-10 rounded-full border-2 bg-white flex items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors">
                           <i
                             className="fab fa-telegram text-2xl"
                             style={{ color: shopColor }}
@@ -351,7 +506,7 @@ const Details = () => {
                       rel="noopener noreferrer"
                       className="flex items-center gap-2"
                     >
-                      <span className="w-10 h-10 rounded-full border-2 bg-white flex items-center justify-center cursor-pointer">
+                      <span className="w-10 h-10 rounded-full border-2 bg-white flex items-center justify-center cursor-pointer hover:bg-gray-100 transition-colors">
                         <i
                           className={`fab fa-${icon.name} text-2xl`}
                           style={{ color: shopColor }}
@@ -364,10 +519,14 @@ const Details = () => {
           </div>
         </div>
       </div>
-      {/* Details Page */}
+
+      {/* RELATED PRODUCTS SECTION */}
       {relatedProducts && relatedProducts.length > 0 && (
         <div className="w-11/12 m-auto lg:w-10/12 mt-6 max-h-[50vh] overflow-y-auto pr-2 scrollbar-hide">
-          <h3 className="text-xl font-bold mb-1 pl-3" style={{ color: shopColor }}>
+          <h3
+            className="text-xl font-bold mb-1 pl-3"
+            style={{ color: shopColor }}
+          >
             More from this shop
           </h3>
           <div className="full">
@@ -375,13 +534,13 @@ const Details = () => {
               <a
                 href={`/details/${product.id}`}
                 key={product.id}
-                className="w-full h-full mt-2 border-[1px] border-white rounded-2xl shadow-md hover:shadow-lg hover:border-[2px] cursor-pointer bg-white"
+                className="w-full h-full mt-2 border-[1px] border-white rounded-2xl shadow-md hover:shadow-lg hover:border-[2px] cursor-pointer bg-white transition-all"
               >
                 <div className="w-full h-28 lg:h-40 sm:h-36 md:h-36 mt-[2px] grid grid-cols-4 gap-2 px-3">
                   <div className="col-span-1 py-4 relative">
                     {product.discount > 0 && (
                       <span
-                        className="flex items-center justify-center w-9 h-9 rounded-full text-white text-[12px] absolute top-2 left-[-8px]"
+                        className="flex items-center justify-center w-9 h-9 rounded-full text-white text-[12px] absolute top-2 left-[-8px] font-bold"
                         style={{ backgroundColor: shopColor }}
                       >
                         {product.discount}%
@@ -437,7 +596,10 @@ const Details = () => {
                         </h3>
                       </>
                     ) : (
-                      <h3 className="font-bold" style={{ color: shopColor }}>
+                      <h3
+                        className="font-bold text-xs lg:text-xl"
+                        style={{ color: shopColor }}
+                      >
                         ${product.price}
                       </h3>
                     )}

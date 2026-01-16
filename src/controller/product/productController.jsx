@@ -117,3 +117,74 @@ export const deleteProduct = async (productId) => {
     return { success: false, message: "Unexpected error occurred." };
   }
 };
+
+// Insert product images
+export const insertProductImages = async (images) => {
+  try {
+    const formattedImages = images.map((img) => ({
+      product_id: img.productId,
+      image_url: img.imageUrl,
+    }));
+
+    const { data, error } = await supabase
+      .from("sup_img_product")
+      .insert(formattedImages)
+      .select();
+
+    if (error) throw error;
+
+    return {
+      success: true,
+      data,
+      message: "Product images added successfully",
+    };
+  } catch (error) {
+    console.error("Error inserting product images:", error);
+    return {
+      success: false,
+      error,
+      message: error.message,
+    };
+  }
+};
+
+// Delete product images
+export const deleteProductImages = async (productId) => {
+  try {
+    const { error } = await supabase
+      .from("sup_img_product")
+      .delete()
+      .eq("product_id", productId);
+
+    if (error) throw error;
+
+    return {
+      success: true,
+      message: "Product images deleted successfully",
+    };
+  } catch (error) {
+    console.error("Error deleting product images:", error);
+    return {
+      success: false,
+      error,
+      message: error.message,
+    };
+  }
+};
+
+// Fetch product images
+export const getProductImages = async (productId) => {
+  try {
+    const { data, error } = await supabase
+      .from("sup_img_product")
+      .select("*")
+      .eq("product_id", productId);
+
+    if (error) throw error;
+
+    return data;
+  } catch (error) {
+    console.error("Error fetching product images:", error.message);
+    return null;
+  }
+};

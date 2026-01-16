@@ -1,6 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
 
 /* Add this to your CSS file or inside a <style> tag */
 .scrollbar-custom::-webkit-scrollbar {
@@ -32,5 +35,3 @@
 }
 /*
 */
-
-
