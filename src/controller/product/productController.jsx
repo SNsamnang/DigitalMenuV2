@@ -24,7 +24,7 @@ export const getProducts = async () => {
           id,
           name
         )
-      `
+      `,
       )
       .order("id", { ascending: true });
 
@@ -101,17 +101,32 @@ export const updateProduct = async (product) => {
 
 export const deleteProduct = async (productId) => {
   try {
-    const { error } = await supabase
+    // First delete related images to avoid foreign key constraint errors
+    const { error: imageError } = await supabase
+      .from("sup_img_product")
+      .delete()
+      .eq("product_id", productId);
+
+    if (imageError) {
+      console.error("Error deleting product images:", imageError.message);
+      return { success: false, message: imageError.message };
+    }
+
+    // Then delete the product itself
+    const { error: productError } = await supabase
       .from("Products")
       .delete()
       .eq("id", productId);
 
-    if (error) {
-      console.error("Error deleting product:", error.message);
-      return { success: false, message: error.message };
+    if (productError) {
+      console.error("Error deleting product:", productError.message);
+      return { success: false, message: productError.message };
     }
 
-    return { success: true, message: "Product deleted successfully!" };
+    return {
+      success: true,
+      message: "Product and images deleted successfully!",
+    };
   } catch (error) {
     console.error("Unexpected error deleting product:", error.message);
     return { success: false, message: "Unexpected error occurred." };
