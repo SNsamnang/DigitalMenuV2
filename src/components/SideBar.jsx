@@ -56,7 +56,11 @@ const SideBar = ({ isOpen, toggleSidebar, closeSidebar, shopId }) => {
         {/* Sidebar Header */}
         <div
           className="block p-4 border-b border-gray-200 relative overflow-hidden"
-          style={{ backgroundColor: shopDetails?.cover ? undefined : shopDetails?.color || "#ffffff" }}
+          style={{
+            backgroundColor: shopDetails?.cover
+              ? undefined
+              : shopDetails?.color || "#ffffff",
+          }}
         >
           {shopDetails?.cover && (
             <div
@@ -87,25 +91,25 @@ const SideBar = ({ isOpen, toggleSidebar, closeSidebar, shopId }) => {
         </div>
 
         {/* Sidebar Content */}
-        <div className="w-80 p-4 py-10 space-y-3 text-center text-wrap">
-          <div className="w-full flex items-center justify-center px-4">
-            {shopDetails?.link_location && (
-              <span
-                className="w-10 h-10 rounded-full border-2 bg-white flex items-center justify-center cursor-pointer"
-                style={{ borderColor: shopDetails?.color }}
-              >
-                <Link to={shopDetails.link_location} target="_blank">
-                  <i
-                    className="fas fa-location-dot text-2xl"
-                    style={{ color: shopDetails?.color }}
-                  ></i>
-                </Link>
-              </span>
-            )}
+        <div className="w-80 p-3 py-10 space-y-3 text-center text-wrap flex flex-col items-center">
+          <div className="w-full flex">
+            <p className="text-center font-medium text-xl text-green-600 p-0 m-0 flex items-start ">
+              {shopDetails?.link_location && (
+                <span
+                  className="w-6 h-6 flex items-center justify-center cursor-pointer"
+                  style={{ borderColor: shopDetails?.color }}
+                >
+                  <Link to={shopDetails.link_location} target="_blank">
+                    <i
+                      className="fas fa-location-dot text-xl"
+                      style={{ color: shopDetails?.color }}
+                    ></i>
+                  </Link>
+                </span>
+              )}
+              {shopDetails?.address || "Shop address"}
+            </p>
           </div>
-          <h2 className="text-center font-bold text-xl text-green-600">
-            {shopDetails?.address || "Shop address"}
-          </h2>
 
           <div className="flex justify-center gap-2">
             {socialContent
@@ -114,37 +118,37 @@ const SideBar = ({ isOpen, toggleSidebar, closeSidebar, shopId }) => {
               .map((icon, index) => (
                 <span
                   key={index}
-                  className="w-10 h-10 rounded-full border-2 bg-white flex items-center justify-center cursor-pointer"
+                  className="w-8 h-8 rounded-full border-2 bg-white flex items-center justify-center cursor-pointer"
                   style={{ borderColor: shopDetails?.color }}
                 >
                   <Link to={icon.link_contact} target="_blank">
                     <i
-                      className={`fab fa-${icon.name} text-2xl`}
+                      className={`fab fa-${icon.name} text-xl`}
                       style={{ color: shopDetails?.color }}
                     ></i>
                   </Link>
                 </span>
               ))}
-              {socialContent
-                .filter((icon) => icon.name === "phone") // Include only the phone icon
-                .slice(0, 5) // Limit to 5 icons
-                .map((icon, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <a
-                      href={`tel:${icon.link_contact}`}
-                      className="w-10 h-10 rounded-full border-2 bg-white flex items-center justify-center cursor-pointer"
-                      style={{ borderColor: shopDetails?.color }}
-                    >
-                      <i
-                        className={`fas fa-${icon.name} text-2xl`}
-                        style={{ color: shopDetails?.color }}
-                      ></i>
-                    </a>
-                    {/* <a href={`tel:${icon.link_contact}`} className="text-base font-bold" style={{ color: shopDetails?.color }}>
+            {socialContent
+              .filter((icon) => icon.name === "phone") // Include only the phone icon
+              .slice(0, 5) // Limit to 5 icons
+              .map((icon, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <a
+                    href={`tel:${icon.link_contact}`}
+                    className="w-8 h-8 rounded-full border-2 bg-white flex items-center justify-center cursor-pointer"
+                    style={{ borderColor: shopDetails?.color }}
+                  >
+                    <i
+                      className={`fas fa-${icon.name} text-xl`}
+                      style={{ color: shopDetails?.color }}
+                    ></i>
+                  </a>
+                  {/* <a href={`tel:${icon.link_contact}`} className="text-base font-bold" style={{ color: shopDetails?.color }}>
                       {icon.link_contact}
                     </a> */}
-                  </div>
-                ))}
+                </div>
+              ))}
           </div>
         </div>
       </div>
