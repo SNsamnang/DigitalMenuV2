@@ -215,11 +215,11 @@ const Menu = () => {
                   </button>
                 </div>
               </div>
-              <img
+              {/*<img
                 src={shopDetails?.profile}
                 alt=""
                 className="h-32 w-32 rounded-full object-cover border-[1px] hidden lg:block"
-              />
+              />*/}
               <button onClick={toggleLanguage} className="hidden lg:block">
                 {i18n.language === "en" ? (
                   <img
