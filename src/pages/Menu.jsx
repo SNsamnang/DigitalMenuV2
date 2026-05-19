@@ -279,10 +279,10 @@ const Menu = () => {
             >
               {i18n.language === "en" ? "All" : "ទាំងអស់"}
             </button>
-            {visibleCategories.map((category, i) => (
+            {visibleCategories.slice().reverse().map((category, reversedIndex) => (
               <button
                 key={category.id}
-                onClick={() => handleCategoryClick(category.id, i)}
+                onClick={() => handleCategoryClick(category.id, reversedIndex)}
                 className="font-bold bg-slate-200 lg:text-[18px] text-[14px] rounded-3xl h-10 px-5 py-1 flex justify-center items-center"
                 style={{
                   color: shopDetails?.color,
@@ -310,10 +310,10 @@ const Menu = () => {
             />
           </div>
           <main className="flex flex-col bg-slate-100">
-            {visibleCategories.map((category, i) => (
+            {visibleCategories.slice().reverse().map((category, reversedIndex) => (
               <div
                 key={category.id}
-                ref={(el) => (categoryRefs.current[i] = el)}
+                ref={(el) => (categoryRefs.current[reversedIndex] = el)}
                 className="w-full scroll-mt-64"
               >
                 <div className="flex items-center justify-start bg-white mb-[2px] py-3">
