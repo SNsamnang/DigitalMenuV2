@@ -87,7 +87,7 @@ const Menu = () => {
 
   useEffect(() => {
     const filtered = products.filter((product) =>
-      product.name.toLowerCase().includes(searchTerm)
+      product.name.toLowerCase().includes(searchTerm),
     );
     setFilteredProducts(filtered);
   }, [searchTerm, products]);
@@ -153,8 +153,8 @@ const Menu = () => {
     (category) =>
       filteredProducts.filter(
         (product) =>
-          product.productTypeId === category.id && product.status == 1
-      ).length > 0
+          product.productTypeId === category.id && product.status == 1,
+      ).length > 0,
   );
 
   return (
@@ -197,7 +197,7 @@ const Menu = () => {
                     style={{ color: shopDetails?.color }}
                   ></i>
                 </span>
-                <div className="flex justify-between">
+                {/* <div className="flex justify-between">
                   <button onClick={toggleLanguage} className="lg:hidden">
                     {i18n.language === "en" ? (
                       <img
@@ -213,14 +213,14 @@ const Menu = () => {
                       />
                     )}
                   </button>
-                </div>
+                </div> */}
               </div>
               {/*<img
                 src={shopDetails?.profile}
                 alt=""
                 className="h-32 w-32 rounded-full object-cover border-[1px] hidden lg:block"
               />*/}
-              <button onClick={toggleLanguage} className="hidden lg:block">
+              {/* <button onClick={toggleLanguage} className="hidden lg:block">
                 {i18n.language === "en" ? (
                   <img
                     src="/anachak/engflag.png"
@@ -234,7 +234,7 @@ const Menu = () => {
                     alt="Khmer Flag"
                   />
                 )}
-              </button>
+              </button> */}
             </div>
 
             {/* Search Input Positioned at Bottom-Center */}
@@ -279,24 +279,30 @@ const Menu = () => {
             >
               {i18n.language === "en" ? "All" : "ទាំងអស់"}
             </button>
-            {visibleCategories.slice().reverse().map((category, reversedIndex) => (
-              <button
-                key={category.id}
-                onClick={() => handleCategoryClick(category.id, reversedIndex)}
-                className="font-bold bg-slate-200 lg:text-[18px] text-[14px] rounded-3xl h-10 px-5 py-1 flex justify-center items-center"
-                style={{
-                  color: shopDetails?.color,
-                  borderColor:
-                    selectedCategory === category.id
-                      ? shopDetails?.color
-                      : "transparent",
-                  borderWidth: selectedCategory === category.id ? "1px" : "1px",
-                  borderStyle: "solid",
-                }}
-              >
-                {category.product_type}
-              </button>
-            ))}
+            {visibleCategories
+              .slice()
+              .reverse()
+              .map((category, reversedIndex) => (
+                <button
+                  key={category.id}
+                  onClick={() =>
+                    handleCategoryClick(category.id, reversedIndex)
+                  }
+                  className="font-bold bg-slate-200 lg:text-[18px] text-[14px] rounded-3xl h-10 px-5 py-1 flex justify-center items-center"
+                  style={{
+                    color: shopDetails?.color,
+                    borderColor:
+                      selectedCategory === category.id
+                        ? shopDetails?.color
+                        : "transparent",
+                    borderWidth:
+                      selectedCategory === category.id ? "1px" : "1px",
+                    borderStyle: "solid",
+                  }}
+                >
+                  {category.product_type}
+                </button>
+              ))}
           </div>
         </div>
         {/* Menu Items */}
@@ -310,106 +316,115 @@ const Menu = () => {
             />
           </div>
           <main className="flex flex-col bg-slate-100">
-            {visibleCategories.slice().reverse().map((category, reversedIndex) => (
-              <div
-                key={category.id}
-                ref={(el) => (categoryRefs.current[reversedIndex] = el)}
-                className="w-full scroll-mt-64"
-              >
-                <div className="flex items-center justify-start bg-white mb-[2px] py-3">
-                  <h2
-                    className="mx-3 lg:text-2xl text-xl font-bold"
-                    style={{ color: shopDetails?.color }}
-                  >
-                    {category.product_type}
-                  </h2>
-                </div>
-                {/* Card Menu */}
-                {filteredProducts
-                  .filter(
-                    (product) =>
-                      product.productTypeId === category.id &&
-                      product.status == 1
-                  )
-                  .map((product, j) => (
-                    <Link
-                      to={`/details/${product.id}`}
-                      key={j}
-                      className="w-full"
+            {visibleCategories
+              .slice()
+              .reverse()
+              .map((category, reversedIndex) => (
+                <div
+                  key={category.id}
+                  ref={(el) => (categoryRefs.current[reversedIndex] = el)}
+                  className="w-full scroll-mt-64"
+                >
+                  <div className="flex items-center justify-start bg-white mb-[2px] py-3">
+                    <h2
+                      className="mx-3 lg:text-2xl text-xl font-bold"
+                      style={{ color: shopDetails?.color }}
                     >
-                      <div className="w-full h-28 lg:h-44 sm:h-40 md:h-40 bg-white mt-[2px] grid grid-cols-4 gap-2 px-4">
-                        <div className="col-span-1 py-4 relative">
-                          {product.discount > 0 && (
-                            <span
-                              className="flex items-center justify-center w-9 h-9 rounded-full text-white text-[12px] absolute top-2 left-[-8px]"
-                              style={{ backgroundColor: shopDetails?.color }}
-                            >
-                              {product.discount}%
-                            </span>
-                          )}
-                          <img
-                            src={product.image}
-                            alt={product.image}
-                            className="h-20 w-24 lg:h-36 sm:h-32 md:h-32 lg:w-36 sm:w-32 md:w-32 rounded-xl object-cover border-[1px]"
-                            style={{ borderColor: shopDetails?.color }}
-                          />
-                        </div>
-                        <div className="col-span-2 py-3 px-3">
-                          <div className="flex items-center">
-                            <p
-                              className="text-[12px] lg:text-[15px] sm:text-[14px] md:text-[14px] float-left"
-                              style={{ color: shopDetails?.color }}
-                            >
-                              ID:00{product.id}
-                            </p>
+                      {category.product_type}
+                    </h2>
+                  </div>
+                  {/* Card Menu */}
+                  {filteredProducts
+                    .filter(
+                      (product) =>
+                        product.productTypeId === category.id &&
+                        product.status == 1,
+                    )
+                    .map((product, j) => (
+                      <Link
+                        to={`/details/${product.id}`}
+                        key={j}
+                        className="w-full"
+                      >
+                        <div className="w-full h-28 lg:h-44 sm:h-40 md:h-40 bg-white mt-[2px] grid grid-cols-4 gap-2 px-4">
+                          <div className="col-span-1 py-4 relative">
+                            {product.discount > 0 && (
+                              <span
+                                className="flex items-center justify-center w-9 h-9 rounded-full text-white text-[12px] absolute top-2 left-[-8px]"
+                                style={{ backgroundColor: shopDetails?.color }}
+                              >
+                                {product.discount}%
+                              </span>
+                            )}
+                            <img
+                              src={product.image || "/anachak/image.png"}
+                              alt={product.name || "Product image"}
+                              loading="lazy"
+                              decoding="async"
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = "/anachak/image.png";
+                              }}
+                              className="h-20 w-24 lg:h-36 sm:h-32 md:h-32 lg:w-36 sm:w-32 md:w-32 rounded-xl object-cover border-[1px]"
+                              style={{ borderColor: shopDetails?.color }}
+                            />
                           </div>
-                          <p className="text-[14px] lg:text-[17px] sm:text-[16px] md:text-[16px] font-bold text-green-600 truncate">
-                            {product.name}
-                          </p>
-                          <p
-                            className="w-full text-[10px] sm:text-[12px] md:text-[12px] lg:text-[13px] break-words whitespace-normal"
-                            style={{
-                              display: "-webkit-box",
-                              WebkitLineClamp: 3,
-                              WebkitBoxOrient: "vertical",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                            }}
-                          >
-                            {product.description}
-                          </p>
-                        </div>
-                        <div className="col-span-1 flex items-start justify-center py-5">
-                          {product.discount > 0 ? (
-                            <>
-                              <h3 className="font-normal text-xs lg:text-xl line-through text-gray-600">
-                                ${product.price}
-                              </h3>
-                              <h3
-                                className="font-bold ml-3 text-xs lg:text-xl pr-2"
+                          <div className="col-span-2 py-3 px-3">
+                            <div className="flex items-center">
+                              <p
+                                className="text-[12px] lg:text-[15px] sm:text-[14px] md:text-[14px] float-left"
                                 style={{ color: shopDetails?.color }}
                               >
-                                $
-                                {(
-                                  product.price -
-                                  product.price * (product.discount / 100)
-                                ).toFixed(2)}
-                              </h3>
-                            </>
-                          ) : (
-                            <h3
-                              className="font-bold"
-                              style={{ color: shopDetails?.color }}
+                                ID:00{product.id}
+                              </p>
+                            </div>
+                            <p className="text-[14px] lg:text-[17px] sm:text-[16px] md:text-[16px] font-bold text-green-600 truncate">
+                              {product.name}
+                            </p>
+                            <p
+                              className="w-full text-[10px] sm:text-[12px] md:text-[12px] lg:text-[13px] break-words whitespace-normal"
+                              style={{
+                                display: "-webkit-box",
+                                WebkitLineClamp: 3,
+                                WebkitBoxOrient: "vertical",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                              }}
                             >
-                              ${product.price}
-                            </h3>
-                          )}
+                              {product.description}
+                            </p>
+                          </div>
+                          <div className="col-span-1 flex items-start justify-center py-5">
+                            {product.discount > 0 ? (
+                              <>
+                                <h3 className="font-normal text-xs lg:text-xl line-through text-gray-600">
+                                  ${product.price}
+                                </h3>
+                                <h3
+                                  className="font-bold ml-3 text-xs lg:text-xl pr-2"
+                                  style={{ color: shopDetails?.color }}
+                                >
+                                  $
+                                  {(
+                                    product.price -
+                                    product.price * (product.discount / 100)
+                                  ).toFixed(2)}
+                                </h3>
+                              </>
+                            ) : (
+                              <h3
+                                className="font-bold"
+                                style={{ color: shopDetails?.color }}
+                              >
+                                ${product.price}
+                              </h3>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    </Link>
-                  ))}
-              </div>
-            ))}
+                      </Link>
+                    ))}
+                </div>
+              ))}
           </main>
         </div>
         {/* Scroll to Top Button */}
